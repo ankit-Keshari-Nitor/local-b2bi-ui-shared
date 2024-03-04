@@ -1,0 +1,76 @@
+//
+// Copyright IBM Corp. 2016, 2023
+//
+// This source code is licensed under the Apache-2.0 license found in the
+// LICENSE file in the root directory of this source tree.
+//
+
+.cds--tree {
+  width: 24rem;
+}
+
+.cds--tree-node__label__details {
+  flex-grow: 1;
+}
+
+.cds--tree-node__additionalinfo {
+  padding-right: 0.75rem;
+}
+.cds--tree-node__checkbox {
+  padding-left: 8px;
+  .cds--checkbox-wrapper {
+    margin: 0px;
+  }
+}
+
+.cds--tree-parent-node__checkbox {
+  padding-left: 4px;
+  .cds--checkbox-wrapper {
+    margin: 0px;
+  }
+}
+
+.cds--tree-node:not(.cds--tree-parent-node) .cds--tree-node__label {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.cds--tree-node--with-checkbox:not(.cds--tree-node--with-icon) {
+  .cds--tree-node__checkbox {
+    padding-right: 0.5rem;
+  }
+}
+
+.sfg--tree-view {
+  width:24rem;
+
+  .cds--tree {
+    //width: auto;
+    height: 300px;
+    overflow-y: auto;
+  }
+  .cds--label {
+    height: 2rem;
+    margin-bottom: 0px;
+    background-color: var(--cds-layer-accent-01);
+    width: 100%;
+    font-weight: var(--cds-heading-compact-01-font-weight);
+    line-height: var(--cds-heading-compact-01-line-height);
+    font-size: var(--cds-heading-compact-01-font-size);
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .cds--tree-node__icon {
+    margin-top:auto;
+    margin-bottom: auto;
+  }
+
+  &.roles {
+    .cds--tree-leaf-node {
+      padding-left: 4px;
+    }
+  }
+  
+}

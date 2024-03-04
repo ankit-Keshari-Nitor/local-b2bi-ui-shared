@@ -1,0 +1,42 @@
+
+.sfg--radio-selection-tile-group > div {
+    display: flex;
+    margin: 1rem;
+    justify-content: space-between;
+  
+    > div {
+      width: 25%;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  
+    > div:first-child {
+      margin-left: 0px;
+    }
+    > div:last-child {
+      margin-right: 0px;
+    }
+  
+    .radio-tile {
+      height: 96px;
+    }
+  
+    .sfg--tile-content {
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+  
+      .sfg--tile-title {
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 28px;
+      }
+      .sfg--tile-description {
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 20px;
+        bottom: 16px;
+        position: absolute;
+      }
+    }
+  }

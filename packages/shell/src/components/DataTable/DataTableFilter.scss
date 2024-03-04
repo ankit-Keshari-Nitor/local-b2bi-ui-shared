@@ -1,0 +1,65 @@
+@use '@carbon/react/scss/spacing' as *;
+
+.clear-filter-close-icon {
+  margin-left: $spacing-03;
+}
+.multicategory-field-margin {
+  margin-top: $spacing-05;
+  margin-bottom: $spacing-05;
+}
+
+.sfg--filter-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .sfg--filter-header {
+    display: flex;
+    justify-content: space-between;
+    //margin: $spacing-05;
+    font-size: 14px;
+    color: var(--cds-text-primary);
+    font-weight: 600;
+    align-items: center;
+
+    .sfg--filter-title {
+      margin-left: $spacing-05;
+    }
+  }
+
+  .sfg--filter-field-container {
+    flex-grow: 1;
+    padding: $spacing-05;
+    height: 0px;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+
+    .sfg--filter-field {
+      margin-top: $spacing-05;
+      margin-bottom: $spacing-05;
+
+      &.cds--checkbox-group {
+        position: relative;
+
+        .cds--tag--filter {
+          position: absolute;
+          top: -20px;
+          right: 0px;
+        }
+      }
+    }
+  }
+
+  .sfg--fitler-footer {
+    /*position: sticky;
+    bottom: 0;
+    left: 0;
+    z-index: 2;*/
+    margin: 0px;
+
+    > button {
+      width: 50%;
+    }
+  }
+}

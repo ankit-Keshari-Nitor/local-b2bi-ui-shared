@@ -1,0 +1,142 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/type' as *;
+@use '@carbon/react/scss/breakpoint' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.language-chooser {
+  width: auto;
+}
+
+.login-page-content {
+  display: flex;
+  height: 100%;
+  margin-top: 3rem;
+}
+
+.branding-content-container {
+  flex-grow: 1;
+  /* webpackIgnore: true */
+  background-image: url('assets/login.png'); 
+  background-size: cover;
+}
+
+.login-container {
+  width: 500px;
+  padding: 24px;
+  display: flex;
+}
+
+.login-content-holder {
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  flex-direction: column;
+
+  .title {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 31px;
+
+    /* Text/$text-primary */
+
+    color: $text-primary;
+    padding-bottom: $spacing-01;
+  }
+
+  .sub-title {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    color: $text-secondary;
+    padding-bottom: $spacing-08;
+    border-bottom: 1px solid #b6b6b6;
+  }
+}
+
+.userId-container,
+.password-container {
+  padding-top: $spacing-04;
+  position: relative;
+  .forgot-link {
+    font-size: 0.75rem;
+    position: absolute;
+    top: 2px;
+    right: 5px;
+    padding-top: $spacing-04;
+  }
+
+  .password-toggle {
+    position: absolute;
+    top: 36px;
+    right: 0px;
+    border: none;
+  }
+}
+
+.form-btn-container {
+  padding-top: $spacing-04;
+
+  button {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.form-remember-container {
+  padding-top: $spacing-04;
+  display: flex;
+
+  .cds--form-item {
+    flex-grow: 0;
+  }
+}
+
+.information-holder {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.notification-container {
+  color: $text-error; // var(--cds-text-error);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.greeting {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 26px;
+  /* identical to box height */
+
+  /* Text/$text-on-color */
+
+  color: $text-on-color;
+  margin: 2rem;
+  margin-bottom: 1rem;
+}
+
+.product-title {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 31px;
+
+  /* Text/$text-on-color */
+
+  color: $text-on-color;
+  margin-left: 2rem;
+}

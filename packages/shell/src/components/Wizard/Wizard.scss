@@ -1,0 +1,40 @@
+@use '@carbon/react/scss/theme' as *;
+
+.shell-wizard {
+    display: flex;
+    height:100%;
+    border-top: 1px solid $border-subtle-03;
+ 
+
+  .shell-wizard-progressbar {
+      width:20%;
+      border-right: 1px solid $border-subtle-03;
+      padding:1rem;
+      .cds--progress--vertical .cds--progress-label {
+          max-width: 20rem;
+      }
+
+      .sfg--progress-step--complete.cds--progress-step--complete {
+        svg {
+            fill: var(--cds-support-success);
+        }
+        .cds--progress-line {
+            background-color: var(--cds-support-success, #0f62fe);
+        }
+      }
+  }
+
+  .shell-wizard-step {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .shell-wizard-step-content {
+    flex-grow: 1;
+    overflow: auto;
+  }
+  .shell-wizard-actions {
+    border-top: 1px solid $border-subtle-03;
+    padding: 1rem;
+  }
+}

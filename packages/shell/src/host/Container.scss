@@ -1,0 +1,49 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/type' as *;
+@use '@carbon/react/scss/breakpoint' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.user-profile {
+  width: auto !important;
+  font-size: 14px !important;
+  line-height: 18px !important;
+  padding-left: 0.75rem !important;
+  .user-details {
+    padding-left: 0.75rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+.h-inherit {
+  height: inherit;
+}
+
+.main-content {
+  height: 100%;
+  margin-top: 3rem;
+  padding: 0px !important;
+  &.sidenav-expanded {
+    margin-left: 16rem;
+  }
+}
+
+.main-section {
+  //padding: 1rem 2rem;
+}
+
+.shell-page-content {
+  padding-right: $spacing-05;
+  padding-left: $spacing-05;
+  height : calc(100vh - 98px);
+  padding-bottom: $spacing-05;
+  overflow: auto;
+}
+
+.shell-breadscrumb-container {
+  margin-right: $spacing-05;
+  margin-left: $spacing-05;
+  padding-right: $spacing-05;
+  padding-left: $spacing-05;
+  padding-top: $spacing-05;
+  padding-bottom: $spacing-05;
+}

@@ -1,0 +1,104 @@
+@use '@carbon/react/scss/spacing' as *;
+.sfg--table-container {
+  margin: 0px $spacing-05;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sfg--datatable-container-grid {
+  flex-grow: 1;
+  padding-left: 0px;
+  padding-right: 0px;
+  font-size: 14px;
+}
+
+.sfg--datatable-container-grid-col {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+.sfg--data-table-head {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+.sfg--filter-section {
+  //height: calc(100vh - 16rem);
+  //overflow-y: scroll;
+  border-right: 1px solid var(--cds-border-subtle);
+}
+
+.cds--search {
+  border: 1px solid var(--cds-border-subtle);
+  border-top: none;
+}
+
+.sfg--applied-filter-section {
+  align-items: center;
+  display: flex;
+}
+
+.sfg--datatable-container-grid-col {
+  background-color: var(--cds-layer);
+  margin: 0px;
+}
+.sfg--table-container {
+  .cds--tag--sm .cds--tag__close-icon {
+    margin-left: $spacing-03;
+  }
+
+  .cds--data-table-content {
+    //height: calc(100vh - 18rem);
+    //position: relative;
+    //overflow-y: scroll;
+  }
+  .cds--data-table-content + .sfg--emptystate {
+    height: auto;
+    position: relative;
+    overflow-y: auto;
+  }
+}
+.sfg--table-container-with-applied-filter {
+  .cds--tag--sm .cds--tag__close-icon {
+    margin-left: $spacing-03;
+  }
+  .cds--data-table-content {
+    height: calc(100vh - 20rem);
+    position: relative;
+    overflow-y: scroll;
+  }
+  .cds--data-table-content + .sfg--emptystate {
+    height: auto;
+    position: relative;
+    overflow-y: auto;
+  }
+}
+.sfg--applied-filter-section-pills {
+  margin: $spacing-03;
+}
+
+.sfg--datatable-right-section {
+  display: flex;
+  flex-direction: column;
+
+  .sfg--datatable-table-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 0;
+
+    .cds--data-table-content {
+      //height: calc(100vh - 18rem);
+      //position: relative;
+      //overflow-y: scroll;
+    }
+    .sfg--emptystate {
+      padding-left: 6rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+.sfg--tree-view {
+  //width:24rem;
+  display: flex;
+  flex-direction: column;
+
+  .cds--tree {
+    //width: auto;
+    //height: 300px;
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  .cds--label {
+    height: 2rem;
+    margin-bottom: 0px;
+    background-color: var(--cds-layer-accent-01);
+    width: 100%;
+    font-weight: var(--cds-heading-compact-01-font-weight);
+    line-height: var(--cds-heading-compact-01-line-height);
+    font-size: var(--cds-heading-compact-01-font-size);
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .cds--tree-node__label__details {
+    flex-grow: 1;
+  }
+
+  .cds--tree-node__additionalinfo {
+    padding-right: 0.75rem;
+  }
+
+  .cds--tree-node__icon {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  &.roles {
+    .cds--tree-leaf-node {
+      padding-left: 4px;
+    }
+  }
+
+  .sfg--tree-view-actions {
+    //position: absolute;
+    //bottom: 0px;
+  }
+
+  .sfg--emptystate {
+    padding-left: 72px;
+    padding-right: 72px;
+    height: 100%;
+  }
+  .sfg--emptystate-image {
+    text-align: center;
+    > svg {
+      width: 76px;
+      height: 76px;
+      color: #a8a8a8;
+    }
+  }
+
+  .sfg--emptystate-descprition {
+    font-weight: 400;
+    font-size: 14px;
+    color: #a8a8a8;
+    text-align: center;
+    padding-top: 16px;
+  }
+}
+
+.full-width {
+  width: 100%;
+  max-width: 100%;
+}
+
+.sfg--tooltip-trigger {
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  cursor: pointer;
+  text-align: start;
+  inline-size: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 1rem;
+  inline-size: 1rem;
+}
