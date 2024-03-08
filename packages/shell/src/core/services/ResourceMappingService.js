@@ -14,8 +14,8 @@ export class ResourceMappingService {
   _flatten(resourceMappings, path) {
     for (let resourceMapKey in resourceMappings) {
       if (Object.hasOwn(resourceMappings[resourceMapKey], 'enabled')) {
-        this._flattenedResourceMappings[path + '.' + resourceMapKey] = resourceMappings[resourceMapKey];
-        this._flattenedResourceMappings[path + '.' + resourceMapKey].status = this.checkIfResourceHasAccess(resourceMappings[resourceMapKey]);
+        this._flattenedResourceMappings[path ? path + '.' + resourceMapKey : resourceMapKey] = resourceMappings[resourceMapKey];
+        this._flattenedResourceMappings[path ? path + '.' + resourceMapKey : resourceMapKey].status = this.checkIfResourceHasAccess(resourceMappings[resourceMapKey]);
       } else {
         this._flatten(resourceMappings[resourceMapKey], path ? path + '.' + resourceMapKey : resourceMapKey);
       }
@@ -53,7 +53,7 @@ export class ResourceMappingService {
   }
 
   hasAccess(resourceKey) {
-    if (!resourceKey) {
+    if (!resourceKey || !this._flattenedResourceMappings[resourceKey]) {
       //|| !this._flattenedResourceMappings[resourceKey]
       return true;
     }
@@ -61,19 +61,19 @@ export class ResourceMappingService {
   }
 
   hasRoleAccess(resourceKey) {
-    if (!resourceKey) {
+    if (!resourceKey || !this._flattenedResourceMappings[resourceKey]) {
       return true;
     }
     return this.isEnabled(resourceKey) && this._flattenedResourceMappings[resourceKey].status.roleAccess;
   }
 
   hasPermissionAccess(resourceKey) {
-    if (!resourceKey) {
+    if (!resourceKey || !this._flattenedResourceMappings[resourceKey]) {
       return true;
     }
     return this.isEnabled(resourceKey) && this._flattenedResourceMappings[resourceKey].status.permissionAccess;
   }
   isEnabled(resourceKey) {
-    return this._flattenedResourceMappings[resourceKey] && this._flattenedResourceMappings[resourceKey].enabled;
+    return !this._flattenedResourceMappings[resourceKey] || (this._flattenedResourceMappings[resourceKey] && this._flattenedResourceMappings[resourceKey].enabled);
   }
 }

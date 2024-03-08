@@ -89,15 +89,15 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
   useEffect(() => {
     setRowObj(arrayToObject(data, 'id'));
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
-      setRows(paginate(TransformTableData(data, config.columnConfig), pagination));
+      setRows(paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server' || config.paginationConfig.mode === 'mixed') {
-      setRows(TransformTableData(data, config.columnConfig));
+      setRows(TransformTableData(data, config.columnConfig, t));
     }
   }, [data]);
 
   useEffect(() => {
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
-      setRows(paginate(TransformTableData(data, config.columnConfig), pagination));
+      setRows(paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server') {
       config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     } else if (config.paginationConfig.mode === 'mixed') {
@@ -138,7 +138,16 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
               return option.label.indexOf(':') > -1 ? t(option.label) : option.label;
             })
             .toString();
-        } else {
+        } else if (filterItem.type === 'radio-group') {
+          const filteredOptions = filterItem.options.filter((optionItem) => {
+            return value === optionItem.value;
+          });
+          displayValue = filteredOptions
+            .map((option) => {
+              return option.label.indexOf(':') > -1 ? t(option.label) : option.label;
+            })
+            .toString();
+        }else {
           displayValue = value;
         }
         if (displayValue.indexOf(':') > -1) {
@@ -288,7 +297,7 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                             // size="sm"
                             kind={toolbarAction.kind}
                           >
-                            {toolbarAction.iconOnly && t(toolbarAction.label)}
+                            {!toolbarAction.iconOnly && t(toolbarAction.label)}
                           </Button>
                         ))}
                     {config.actionsConfig.primary && hasAccess(config.actionsConfig.primary.resourceKey) && (

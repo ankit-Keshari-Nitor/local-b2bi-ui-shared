@@ -1,0 +1,9 @@
+{
+  "name": "@b2bi/styles",
+  "version": "1.0.0",
+  "description": "Common Styles across B2Bi apps",
+  "main": "index.js",
+  "author": "Pradeep Kariyappa",
+  "license": "Private",
+  "private": true
+}

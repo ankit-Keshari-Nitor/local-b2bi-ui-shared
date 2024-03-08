@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, Button, Checkbox, CheckboxGroup, Tag, Link, Section, ComboBox, Form } from '@carbon/react';
+import { TextInput, Button, Checkbox, CheckboxGroup, Tag, Link, Section, ComboBox, Form, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { Close } from '@carbon/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -15,7 +15,8 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
     watch,
     resetField,
     formState: { isDirty },
-    reset
+    reset,
+    getValues
   } = useForm({ defaultValues: defaultValues }, 'filter');
   const [isChange, setIsChange] = useState(false);
   const [defaultFormValue, setDefaultFormValue] = useState({});
@@ -50,6 +51,8 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
         formDefaultValue[filter.name] = filter.defaultValue ? filter.defaultValue : '';
       } else if (filter.type === 'checkbox-group') {
         formDefaultValue[filter.name] = filter.defaultValue ? filter.defaultValue : [];
+      } else if (filter.type === 'radio-group') {
+        formDefaultValue[filter.name] = filter.defaultValue ? filter.defaultValue : '';
       }
     });
     setDefaultFormValue(formDefaultValue);
@@ -111,12 +114,12 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
                 {item.options.map((checkbox, j) => {
                   return (
                     <Checkbox
-                      key={checkbox.name}                      
+                      key={checkbox.name}
                       data-testid={checkbox.id}
                       value={checkbox.value}
                       labelText={t(checkbox.label)}
                       {...register(item.name, {}, 'checkbox')}
-                      id={'filter'+ '.' + item.name + '.' + checkbox.value}
+                      id={'filter' + '.' + item.name + '.' + checkbox.value}
                     />
                   );
                 })}
@@ -126,6 +129,30 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
                   </Tag>
                 )}
               </CheckboxGroup>
+            );
+          }
+          if (item.type === 'radio-group') {
+            return (
+              <RadioButtonGroup
+                key={item.name}
+                {...register(item.name, {}, 'radio-group')}
+                legendText={t(item.label)}
+                valueSelected={getValues(item.name)}
+                className="sfg--filter-field radio-group"
+                orientation="vertical"
+              >
+                {item.options.map((radio, j) => {
+                  return (
+                    <RadioButton
+                      key={radio.name}
+                      {...register(item.name, {}, 'radio')}
+                      id={'filter' + '.' + item.name + '.' + radio.value}
+                      labelText={t(radio.label)}
+                      value={radio.value}
+                    />
+                  );
+                })}
+              </RadioButtonGroup>
             );
           }
         })}
@@ -143,6 +170,4 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
 };
 
 export default DataTableFilter;
-export {
-  DataTableFilter
-}
+export { DataTableFilter };

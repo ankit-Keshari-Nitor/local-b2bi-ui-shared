@@ -1,5 +1,6 @@
-import { ResourceContext, ResourceProvider, useResource } from './ResourceProvider';
-import { cleanup, fireEvent, render, find, screen } from '@testing-library/react';
+import { ResourceProvider, useResource } from './ResourceProvider';
+import { render, screen } from '@testing-library/react';
+import * as AuthP from './AuthProvider';
 
 const AppRoles = {
   ADMIN: 'Admin',
@@ -44,8 +45,8 @@ const AppResourceMapping = {
       roles: [AppRoles.ADMIN, AppRoles.USER],
       enabled: true
     }
-  },
-}
+  }
+};
 
 const TestingComponent = () => {
   const { hasAccess } = useResource();
@@ -60,27 +61,54 @@ const TestingComponent = () => {
   );
 };
 
-it(' Verify has permission value', () => {
-  render(
-    <ResourceProvider resourceMappings={AppResourceMapping} roles={['Admin']}>
-      <TestingComponent></TestingComponent>
-    </ResourceProvider>
-  );
-  const add = screen.getByTestId('add');
-  expect(add.textContent).toEqual('true');
+describe('ResourceProvider:', () => {
+  beforeEach(() => {
+    jest.spyOn(AuthP, 'useAuth').mockImplementation(() => {
+      return {
+        user: {
+          userName: 'admin',
+          autthenticated: true,
+          organizationKey: 'DEFAULT',
+          roles: ['Administrator'],
+          permissions: [
+            'user:view',
+            'user:create',
+            'user:edit',
+            'user:delete',
+            'user:activate',
+            'user:deactivate',
+            'businessUnit:view',
+            'businessUnit:create',
+            'businessUnit:update',
+            'businessUnit:delete'
+          ]
+        }
+      };
+    });
+  });
 
-  expect(screen.getByTestId('delete')).toHaveTextContent('true');
-  expect(screen.getByTestId('delete-enable')).toHaveTextContent('true');
-  expect(screen.getByTestId('add-enable')).toHaveTextContent('true');
-});
+  it(' Verify has permission value', () => {
+    render(
+      <ResourceProvider resourceMappings={AppResourceMapping}>
+        <TestingComponent></TestingComponent>
+      </ResourceProvider>
+    );
+    const add = screen.getByTestId('add');
+    expect(add.textContent).toEqual('true');
 
-it(' Verify user has permission value', () => {
-  render(
-    <ResourceProvider resourceMappings={AppResourceMapping} roles={['User']}>
-      <TestingComponent></TestingComponent>
-    </ResourceProvider>
-  );
-  const add = screen.getByTestId('add');
-  //  expect(add.textContent).toEqual("true");
-  //  expect(screen.getByTestId('add-enable')).toHaveTextContent("true")
+    expect(screen.getByTestId('delete')).toHaveTextContent('true');
+    expect(screen.getByTestId('delete-enable')).toHaveTextContent('true');
+    expect(screen.getByTestId('add-enable')).toHaveTextContent('true');
+  });
+
+  it(' Verify user has permission value', () => {
+    render(
+      <ResourceProvider resourceMappings={AppResourceMapping} roles={['User']}>
+        <TestingComponent></TestingComponent>
+      </ResourceProvider>
+    );
+    const add = screen.getByTestId('add');
+    //  expect(add.textContent).toEqual("true");
+    //  expect(screen.getByTestId('add-enable')).toHaveTextContent("true")
+  });
 });

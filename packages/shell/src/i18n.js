@@ -3,7 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import Backend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-const initI18n = ({ns,defaultNS,...props}) => {
+const initI18n = ({ ns, defaultNS, ...props }) => {
   i18n
     .use(Backend)
     .use(LanguageDetector)
@@ -21,8 +21,8 @@ const initI18n = ({ns,defaultNS,...props}) => {
       load: 'currentOnly',
       backend: {
         // for all available options read the backend's repository readme file
-        loadPath: function(lng, ns) {
-            return 'locales/{{lng}}/{{ns}}.json'
+        loadPath: function (lng, ns) {
+          return 'locales/{{lng}}/{{ns}}.json';
         }
       },
       interpolation: {

@@ -1,0 +1,19 @@
+{
+    "name": "@b2bi/shell-bdd",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "type": "module",
+    "dependencies": {
+      "@cucumber/cucumber": "^10.1.0",
+      "@playwright/test": "^1.40.1",
+      "@types/node": "^20.11.21",
+      "cucumber-html-reporter": "^7.1.1"
+    },
+    "scripts": {
+      "test": "cucumber-js test --tags \"(not (@Ignore or @ignore))\" ",
+      "test-current": "cucumber-js --tags \"(@current and (not (@Ignore or @ignore)))\" -f summary -f json:test/report/cucumber_report.json",
+      "test-report": "node bdd/reporter.js"
+    }
+  }
+  

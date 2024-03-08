@@ -1,0 +1,50 @@
+@use '@carbon/layout';
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/colors';
+@use '@carbon/type';
+
+.cds--tabs.cds--tabs--contained {
+  margin-left: $spacing-05 !important;
+  margin-top: $spacing-05 !important;
+}
+
+.cds--tab-content {
+  padding-top: 0 !important;
+}
+
+.cds--data-table-container {
+  // margin: 0px !important;
+}
+
+.cds--tabs__nav-item {
+  min-width: $spacing-13 + $spacing-06;
+}
+
+.cds--data-table-content {
+  height: 100%;
+}
+
+.cds--tab-content .cds--data-table-container {
+  margin: 0px !important;
+
+  .cds--data-table-content {
+    height: 100%;
+  }
+}
+
+.cds--modal-content {
+  .cds--accordion__content {
+    padding-right: 16px;
+  }
+}
+
+
+.cds--accordion__title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.cds--accordion__content {
+  padding: 0px;
+}

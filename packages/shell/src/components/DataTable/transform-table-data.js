@@ -1,7 +1,7 @@
 import React from 'react';
 import { DefinitionTooltip, Link } from '@carbon/react';
 
-const TransformTableData = (rows, columnConfig) => {
+const TransformTableData = (rows, columnConfig, t) => {
   // on pophover show list of item
   const arrayLabel = (list) => {
     return (
@@ -50,6 +50,19 @@ const TransformTableData = (rows, columnConfig) => {
     );
   };
 
+  const getCellValue = function (row, path) {
+    const keys = path.split('.');
+    let result = row;
+    for (const key of keys) {
+      if (!result[key]) {
+        result = '';
+        break;
+      }
+      result = result[key];
+    }
+    return result;
+  };
+
   const transformData = rows.map((row, rowIndex) => {
     const transformObj = { ...row };
 
@@ -62,15 +75,15 @@ const TransformTableData = (rows, columnConfig) => {
             }}
             data-testid={rowIndex + '-' + column.id}
           >
-            {row[column.value]}
+            {getCellValue(row, column.value)}
           </Link>
         );
       } else if (column.displayType === 'array-label') {
-        let transformvalue = row[column.value];
+        let transformvalue = getCellValue(row, column.value);
         if (Array.isArray(transformvalue) && transformvalue.length > 1) {
-          if (typeof transformvalue === 'string') {
-            transformObj[column.value] = arrayValue(transformvalue, rowIndex, row.length, colIndex, columnConfig.length);
-          } else if (typeof transformvalue === 'object') {
+          if (typeof transformvalue[0] === 'string') {
+            transformvalue = arrayValue(transformvalue, rowIndex, row.length, colIndex, columnConfig.length);
+          } else if (typeof transformvalue[0] === 'object') {
             transformvalue = arrayValue(
               transformvalue.map((value) => value[column.arrayKey]),
               rowIndex,
@@ -79,10 +92,20 @@ const TransformTableData = (rows, columnConfig) => {
               columnConfig.length
             );
           }
+        } else {
+          if (typeof transformvalue[0] === 'string') {
+            transformvalue = transformvalue[0];
+          } else if (typeof transformvalue[0] === 'object') {
+            transformvalue = transformvalue[0][column.arrayKey];
+          }
         }
         transformObj[column.value] = transformvalue;
       } else if (column.displayType === 'label') {
-        transformObj[column.value] = row[column.value];
+        if (column.translateKey) {
+          transformObj[column.value] = t(column.translateKey + '.' + getCellValue(row, column.value));
+        } else {
+          transformObj[column.value] = getCellValue(row, column.value);
+        }
       }
     });
 

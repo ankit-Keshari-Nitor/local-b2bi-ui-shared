@@ -1,0 +1,9 @@
+.page-content.page-type-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page-body {
+  flex-grow: 1;
+}
