@@ -1,0 +1,9 @@
+.shell-toast-notication-container {
+  overflow: auto;
+  scrollbar-gutter: stable;
+  height: 100%;
+
+  .cds--toast-notification {
+    margin: 1rem;
+  }
+}

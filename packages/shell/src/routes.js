@@ -1,5 +1,7 @@
 import React from 'react';
 import { PageNotFound, NotAuthorized } from './common/pages';
+import { routes as FeatureTestRoutes} from './featuret-test';
+
 
 const routes = [
   {
@@ -9,7 +11,8 @@ const routes = [
   {
     path: '/notauthorized',
     element: <NotAuthorized />
-  }
+  },
+  ...FeatureTestRoutes
 ];
 
 export { routes };

@@ -29,6 +29,7 @@ import { useAuth } from '../core/providers/AuthProvider';
 import { useConfiguration } from '../core/providers/ConfigurationProvider';
 import { useResource } from '../core/providers/ResourceProvider';
 import { PageProvider } from '../core/providers/PageProvider';
+import { ToastNotificationContainer } from '../components';
 
 import './Container.scss';
 
@@ -51,13 +52,20 @@ const Container = (props) => {
       if (navConfig.to.startsWith(currentPage)) {
         if (navConfig.children?.length > 0) {
           return (
-            <SideNavMenu data-testid={'secondary-nav-'+navConfig.to} defaultExpanded key={navConfig.to} renderIcon={navConfig.icon} title={t(navConfig.title)}>
+            <SideNavMenu data-testid={'secondary-nav-' + navConfig.to} defaultExpanded key={navConfig.to} renderIcon={navConfig.icon} title={t(navConfig.title)}>
               {renderSideNav(navConfig.children)}
             </SideNavMenu>
           );
         } else {
           return (
-            <SideNavLink data-testid={'secondary-nav-'+navConfig.to} isActive={location.pathname.startsWith(navConfig.to)} key={navConfig.to} renderIcon={navConfig.icon} as={Link} to={navConfig.to}>
+            <SideNavLink
+              data-testid={'secondary-nav-' + navConfig.to}
+              isActive={location.pathname.startsWith(navConfig.to)}
+              key={navConfig.to}
+              renderIcon={navConfig.icon}
+              as={Link}
+              to={navConfig.to}
+            >
               {t(navConfig.label)}
             </SideNavLink>
           );
@@ -103,7 +111,7 @@ const Container = (props) => {
             to={headerMenu.to}
             onClick={() => {
               setCurrentPage(headerMenu.to);
-              if(!isSideNavExpanded) {
+              if (!isSideNavExpanded) {
                 onClickSideNavExpand();
               }
             }}
@@ -171,6 +179,9 @@ const Container = (props) => {
                         <ModalPageContainer></ModalPageContainer>
                       </PageProvider>
                     </section>
+                  </section>
+                  <section class="shell-toast-container">
+                    <ToastNotificationContainer></ToastNotificationContainer>
                   </section>
                 </Theme>
               </Content>

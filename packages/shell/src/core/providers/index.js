@@ -6,6 +6,7 @@ import { ModalContext, ModalProvider, useModal } from './ModalProvider';
 import { PageProvider, usePage as usePageContext } from './PageProvider';
 import { ResourceContext, ResourceProvider, useResource } from './ResourceProvider';
 import { RouterProvider } from './RouterProvider';
+import { NotificationContext, NotificationProvider, useNotification } from './NotificationProvider';
 
 const ShellProviders = {
   AuthProvider,
@@ -35,7 +36,11 @@ const ShellProviders = {
   ResourceProvider,
   useResource,
 
-  RouterProvider
+  RouterProvider,
+
+  NotificationContext,
+  NotificationProvider,
+  useNotification
 };
 
 export default ShellProviders;
@@ -61,5 +66,8 @@ export {
   ResourceContext,
   ResourceProvider,
   useResource,
-  RouterProvider
+  RouterProvider,
+  NotificationContext,
+  NotificationProvider,
+  useNotification
 };
