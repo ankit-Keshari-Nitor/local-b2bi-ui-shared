@@ -92,11 +92,12 @@ const useDataSource = (dsDefinition, context) => {
             })
             .catch((err) => {
               if (err.code === 'ERR_NETWORK') {
-                context.utils.showNotificationMessage('error', err.message);
+                context.utils.showNotificationMessage('toast','error', err.message);
               } else if (err.response.data && err.response.data.errorCode) {
-                context.utils.showNotificationMessage('error', context.t(`mod-api:${err.response.data.statusCode}.errorCode.${err.response.data.errorCode}`));
+                // context.utils.showNotificationMessage('toast','error', context.t(`mod-api:${err.response.data.statusCode}.errorCode.${err.response.data.errorCode}`));
+                context.utils.showNotificationMessage('toast', 'error', err.response.data.message);
               } else {
-                context.utils.showNotificationMessage('error', err.response.statusText);
+                context.utils.showNotificationMessage('toast','error', err.response.statusText);
               }
               reject(err);
             });

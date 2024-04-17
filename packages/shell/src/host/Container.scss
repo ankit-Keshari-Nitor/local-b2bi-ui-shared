@@ -34,7 +34,7 @@
 .shell-page-content {
   padding-right: $spacing-05;
   padding-left: $spacing-05;
-  height : calc(100vh - 98px);
+  height: calc(100vh - 98px);
   padding-bottom: $spacing-05;
   overflow: auto;
 }
@@ -46,4 +46,13 @@
   padding-left: $spacing-05;
   padding-top: $spacing-05;
   padding-bottom: $spacing-05;
+}
+
+.shell-toast-container {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1000;
+  height: 100%;
+  padding-top: 3rem;
 }

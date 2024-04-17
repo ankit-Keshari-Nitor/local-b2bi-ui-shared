@@ -15,6 +15,7 @@ import { RoutePage } from './RoutePage/RoutePage';
 import { Page } from './page/Page';
 import { PageHeader } from './page/PageHeader';
 import { PageActions } from './page/PageActions';
+import { ToastNotificationContainer } from './ToastNotification';
 
 const ShellComponents = {
   Breadcrumb,
@@ -35,7 +36,8 @@ const ShellComponents = {
   PageHeader,
   RoutePage,
   CDSTreeView,
-  CDSTreeNode
+  CDSTreeNode,
+  ToastNotificationContainer
 };
 export default ShellComponents;
 
@@ -58,5 +60,6 @@ export {
   PageHeader,
   RoutePage,
   CDSTreeView,
-  CDSTreeNode
+  CDSTreeNode,
+  ToastNotificationContainer
 };
