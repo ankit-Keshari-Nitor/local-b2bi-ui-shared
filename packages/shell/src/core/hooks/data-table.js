@@ -25,13 +25,18 @@ const useDatatable = (tableConfig) => {
 
   const getListData = () => {
     const dsPromise = tableConfig.getListData(_getListInput());
-    setLoadingState(true);
-    dsPromise.then(() => {
+    if (dsPromise && typeof dsPromise.then === 'function') {
+      setLoadingState(true);
+      dsPromise.then(() => {
+        setLoadingState(false);
+      }).catch(() => {
+        // TODO: Handle error and show empty state
+        setLoadingState(false);
+      });
+    } else {
+      console.error('getListData function did not return a promise');
       setLoadingState(false);
-    }).catch(() => {
-      // TODO: Handle error and show empty state
-      setLoadingState(false);
-    });
+    }
     return dsPromise;
   };
 
