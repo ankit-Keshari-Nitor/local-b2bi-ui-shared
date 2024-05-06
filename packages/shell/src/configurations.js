@@ -13,6 +13,12 @@ const sideNavConfig = [
     to: '/shelltest/feature',
     title: 'shell:test.feature',
     resourceKey: 'SHELLTEST.Feature.VIEW'
+  },
+  {
+    label: 'shell:test.form',
+    to: '/shelltest/form',
+    title: 'shell:test.form',
+    resourceKey: 'SHELLTEST.FORM.VIEW'
   }
 ];
 

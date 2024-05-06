@@ -4,11 +4,11 @@ import { useAuth } from './core/providers/AuthProvider';
 import { useResource } from './core/providers/ResourceProvider';
 
 const RouteGuard = (props) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   let location = useLocation();
   const { hasAccess } = useResource();
   if (props.type === 'auth' && location.pathname !== '/login') {
-    if (!user?.userName) {
+    if (!isAuthenticated) {
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
   } else if (props.type === 'resource') {

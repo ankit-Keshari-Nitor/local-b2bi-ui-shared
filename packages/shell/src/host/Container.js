@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { UserAvatar } from '@carbon/icons-react';
+import { UserAvatar, Enterprise } from '@carbon/icons-react';
 import {
   Button,
   Content,
@@ -18,6 +18,9 @@ import {
   SideNavItems,
   SideNavLink,
   SideNavMenu,
+  Switcher,
+  SwitcherItem,
+  SwitcherDivider,
   Theme
 } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -30,13 +33,15 @@ import { useConfiguration } from '../core/providers/ConfigurationProvider';
 import { useResource } from '../core/providers/ResourceProvider';
 import { PageProvider } from '../core/providers/PageProvider';
 import { ToastNotificationContainer } from '../components';
+import { useApplicationInfo } from '../core/providers/ApplicationInfoProvider';
 
 import './Container.scss';
 
 const Container = (props) => {
   const { t } = useTranslation();
   const { sideNav, headerMenuList } = useConfiguration();
-  const { user, signout } = useAuth();
+  const { user, logout } = useAuth();
+  const { appDetails, setAppDetails } = useApplicationInfo();
   const [showRightPanel, setShowRightPanel] = useState(false);
   const { hasAccess } = useResource();
   const [currentPage, setCurrentPage] = useState();
@@ -126,69 +131,122 @@ const Container = (props) => {
   useEffect(() => {
     const paths = location.pathname.split('/');
     if (paths.length === 2 && paths[1].length === 0) {
-      navigate('/dashboard');
-      setCurrentPage('/dashboard');
+      navigate(appDetails.defaultRoute);
+      setCurrentPage(appDetails.defaultRoute);
     } else {
       setCurrentPage('/' + paths[1]);
     }
+
+    const appContextStr = window.sessionStorage.getItem('appContext');
+    let appContext = {};
+    if (appContextStr !== '' && appContextStr !== null) {
+      appContext = JSON.parse(appContextStr);
+    }
+
+    setAppDetails({
+      ...appDetails,
+      context: appContext
+    });
   }, []);
 
   return (
     <>
-      <div className="container">
-        <HeaderContainer
-          render={({ isSideNavExpanded, onClickSideNavExpand }) => (
-            <>
-              <Theme theme="g100">
-                <Header aria-label={t('productName')}>
-                  <SkipToContent />
-                  <HeaderMenuButton data-testid="side-nav-toggle-button" aria-label="Open menu" isCollapsible onClick={onClickSideNavExpand} isActive={isSideNavExpanded} />
-                  <HeaderName as={Link} to="#" prefix={t('appPrefix')}>
-                    {t('appName')}
-                  </HeaderName>
-                  <HeaderNavigation aria-label={t('productName')}>{renderHeaderMenu(headerMenuList, isSideNavExpanded, onClickSideNavExpand)}</HeaderNavigation>
-                  <HeaderGlobalBar>
-                    <HeaderGlobalAction aria-label={t('shell:userProfile')} className="user-profile" onClick={toggleRightPanel}>
-                      <UserAvatar size={24} />
-                      <div className="user-details">
-                        <div>{user.userName}</div>
-                        <div>9:15pm (UTC 5:30)</div>
-                      </div>
-                    </HeaderGlobalAction>
-                  </HeaderGlobalBar>
-                  <Theme className="h-inherit" theme="white">
-                    <SideNav aria-label="Side navigation" isPersistent={false} expanded={isSideNavExpanded}>
-                      <SideNavItems>{renderSideNav(sideNav)}</SideNavItems>
-                    </SideNav>
-                  </Theme>
-                  <HeaderPanel aria-label="Header Panel" expanded={showRightPanel}>
-                    <Button onClick={() => signout()}>Sign out</Button>
-                  </HeaderPanel>
-                </Header>
-              </Theme>
-              <Content className={isSideNavExpanded ? 'main-content sidenav-expanded' : 'main-content'}>
-                <Theme className="h-inherit" theme="g10">
-                  <section className="h-inherit main-section">
-                    <section className="shell-breadscrumb-container">
-                      <Breadcrumb />
-                    </section>
-                    <section className="shell-page-content">
-                      <PageProvider>
-                        <Outlet />
-                        <ModalMessage></ModalMessage>
-                        <ModalPageContainer></ModalPageContainer>
-                      </PageProvider>
-                    </section>
-                  </section>
-                  <section class="shell-toast-container">
-                    <ToastNotificationContainer></ToastNotificationContainer>
-                  </section>
+      {appDetails.context && (
+        <div className="container">
+          <HeaderContainer
+            render={({ isSideNavExpanded, onClickSideNavExpand }) => (
+              <>
+                <Theme theme="g100">
+                  <Header aria-label={t('productName')}>
+                    <SkipToContent />
+                    <HeaderMenuButton data-testid="side-nav-toggle-button" aria-label="Open menu" isCollapsible onClick={onClickSideNavExpand} isActive={isSideNavExpanded} />
+                    <HeaderName as={Link} to="#" prefix={t('appPrefix')}>
+                      {t('appName')}
+                    </HeaderName>
+                    <HeaderNavigation aria-label={t('productName')}>{renderHeaderMenu(headerMenuList, isSideNavExpanded, onClickSideNavExpand)}</HeaderNavigation>
+                    <HeaderGlobalBar>
+                      <HeaderGlobalAction aria-label="Organization Context" className="user-profile">
+                        <Enterprise size={24} />
+                        &nbsp;
+                        <div className="user-details">
+                          <div>{appDetails.context.organization?.organizationName}</div>
+                        </div>
+                        &nbsp;
+                      </HeaderGlobalAction>
+                      <HeaderGlobalAction aria-label={t('shell:userProfile')} className="user-profile" onClick={toggleRightPanel}>
+                        <UserAvatar size={24} />
+                        <div className="user-details">
+                          <div>{user.userName || user.username}</div>
+                          <div>{user.lastLoggedIn} (UTC 5:30)</div>
+                        </div>
+                      </HeaderGlobalAction>
+                    </HeaderGlobalBar>
+                    <Theme className="h-inherit" theme="white">
+                      <SideNav aria-label="Side navigation" isPersistent={false} expanded={isSideNavExpanded}>
+                        <SideNavItems>{renderSideNav(sideNav)}</SideNavItems>
+                      </SideNav>
+                    </Theme>
+                    <HeaderPanel aria-label="Header Panel" expanded={showRightPanel}>
+                      {/*<Button onClick={() => logout()}>Sign out</Button>*/}
+                      <Switcher aria-label="Switcher Container" expanded={showRightPanel}>
+                        <SwitcherItem aria-label="Link 1" href="#">
+                          <div>{user.userName || user.username}</div>
+                          <div>(Administrator)</div>
+                        </SwitcherItem>
+                        <SwitcherDivider />
+                        <SwitcherItem href="#" aria-label="Link 2">
+                          Change Password
+                        </SwitcherItem>
+                        <SwitcherItem aria-label="Link 3" onClick={() => logout()}>
+                          Sign out
+                        </SwitcherItem>
+                        <SwitcherItem href="#" aria-label="Link 5">
+                          Preferences
+                        </SwitcherItem>
+                        <SwitcherItem
+                          aria-label="Link 6"
+                          onClick={() => {
+                            navigate('/manage/switchorganization');
+                            setShowRightPanel(false);
+                          }}
+                        >
+                          Switch Organization
+                        </SwitcherItem>
+                        <SwitcherDivider />
+                        <SwitcherItem href="#" aria-label="Link 4">
+                          Help
+                        </SwitcherItem>
+                        <SwitcherItem href="#" aria-label="Link 6">
+                          Contact Support
+                        </SwitcherItem>
+                      </Switcher>
+                    </HeaderPanel>
+                  </Header>
                 </Theme>
-              </Content>
-            </>
-          )}
-        />
-      </div>
+                <Content className={isSideNavExpanded ? 'main-content sidenav-expanded' : 'main-content'}>
+                  <Theme className="h-inherit" theme="g10">
+                    <section className="h-inherit main-section">
+                      <section className="shell-breadscrumb-container">
+                        <Breadcrumb />
+                      </section>
+                      <section className="shell-page-content">
+                        <PageProvider>
+                          <Outlet />
+                          <ModalMessage></ModalMessage>
+                          <ModalPageContainer></ModalPageContainer>
+                        </PageProvider>
+                      </section>
+                    </section>
+                    <section class="shell-toast-container">
+                      <ToastNotificationContainer></ToastNotificationContainer>
+                    </section>
+                  </Theme>
+                </Content>
+              </>
+            )}
+          />
+        </div>
+      )}
     </>
   );
 };

@@ -1,18 +1,38 @@
 import { useState, useRef } from 'react';
 
 const useRefState = (intialValue) => {
-  const refVar = useRef();
+  const refVar = useRef(intialValue);
+  const [stateVar, setStateVar] = useState(intialValue);
   const setRefVar = (newValue) => {
     refVar.current = newValue;
+    setStateVar(newValue);
   };
-  return [refVar, setRefVar];
+  return [refVar, stateVar, setRefVar];
+};
+
+const removeEmptyAttributes = function (obj) {
+  const newObj = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+        const nestedObj = removeEmptyAttributes(obj[key]);
+        if (Object.keys(nestedObj).length !== 0) {
+          newObj[key] = nestedObj;
+        }
+      } else if (obj[key] !== '' && obj[key] !== undefined) {
+        newObj[key] = obj[key];
+      }
+    }
+  }
+  return newObj;
 };
 
 const useDatatable = (tableConfig) => {
   const [loadingState, setLoadingState] = useState(false);
-  const [filter, setFilter] = useRefState();
-  const [pagination, setPagination] = useRefState();
-  const [searchText, setSearchText] = useRefState();
+  const [filter, filterState, setFilter] = useRefState({});
+  const [pagination, paginationState, setPagination] = useRefState();
+  const [searchText, searchTextState, setSearchText] = useRefState();
+  const [emptyState, setEmptyState] = useState();
 
   const _getListInput = function () {
     const listInput = {
@@ -27,12 +47,15 @@ const useDatatable = (tableConfig) => {
     const dsPromise = tableConfig.getListData(_getListInput());
     if (dsPromise && typeof dsPromise.then === 'function') {
       setLoadingState(true);
-      dsPromise.then(() => {
-        setLoadingState(false);
-      }).catch(() => {
-        // TODO: Handle error and show empty state
-        setLoadingState(false);
-      });
+      dsPromise
+        .then((data) => {
+          setLoadingState(false);
+          _updateEmptyState(data);
+        })
+        .catch(() => {
+          // TODO: Handle error and show empty state
+          setLoadingState(false);
+        });
     } else {
       console.error('getListData function did not return a promise');
       setLoadingState(false);
@@ -42,6 +65,21 @@ const useDatatable = (tableConfig) => {
 
   const refresh = () => {
     return getListData();
+  };
+
+  const _updateEmptyState = function (data) {
+    const listDataKey = Object.keys(data.data._embedded)[0];
+    const listData = data.data._embedded[listDataKey];
+    if (listData.length === 0) {
+      const appliedFilterItems = removeEmptyAttributes(filter.current);
+      if (Object.keys(appliedFilterItems).length > 0 || searchText.current) {
+        setEmptyState('filterSearchNoData');
+      } else {
+        setEmptyState('initNoData');
+      }
+    } else {
+      setEmptyState(undefined);
+    }
   };
 
   const applyFilter = function (filterData) {
@@ -99,7 +137,6 @@ const useDatatable = (tableConfig) => {
       page: 0
     });
     getListData();
-    
   };
 
   const paginationChange = function (paginationConfig, reload = true) {
@@ -123,7 +160,14 @@ const useDatatable = (tableConfig) => {
     removeFilter,
     paginationChange,
     refresh,
-    init
+    init,
+    filter: filter,
+    filterState,
+    pagination: pagination,
+    paginationState,
+    searchText: searchText,
+    searchTextState,
+    emptyState
   };
 };
 

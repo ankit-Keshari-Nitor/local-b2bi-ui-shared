@@ -1,6 +1,7 @@
 import { Breadcrumb } from './Breadcrumb/Breadcrumb';
 import { SFGDataTable as DataTable } from './DataTable/DataTable';
 import { DataTableFilter as DataFilter } from './DataTable/DataTableFilter';
+import { DataTableTreeView } from './DataTable/DataTableTreeView';
 import { SFGEmptyState as EmptyState } from './EmptyState/EmptyState';
 import { TreeView, CDSTreeView, CDSTreeNode } from './TreeView';
 import { SFGWizard as Wizard } from './Wizard/Wizard';
@@ -21,6 +22,7 @@ const ShellComponents = {
   Breadcrumb,
   DataTable,
   DataFilter,
+  DataTableTreeView,
   EmptyState,
   ModalMessage,
   ModalPageContainer,
@@ -45,6 +47,7 @@ export {
   Breadcrumb,
   DataTable,
   DataFilter,
+  DataTableTreeView,
   EmptyState,
   ModalMessage,
   ModalPageContainer,

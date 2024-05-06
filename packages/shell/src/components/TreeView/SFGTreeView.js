@@ -62,7 +62,7 @@ const SFGTreeView = ({ name, className, data, selected, config, loadingState, em
         key={nodeProps.id}
         isExpanded={true}
         renderIcon={nodeProps.icon ? nodeProps.icon : null}
-        additionalInfo={getAdditionalInfo(nodeProps.id, { additionalInfo, tooltip, menu })}
+        additionalInfo={getAdditionalInfo(nodeProps.id, { tag: additionalInfo, tooltip, menu })}
         name={nodeProps.label}
         {...nodeProps}
       >
@@ -102,6 +102,7 @@ const SFGTreeView = ({ name, className, data, selected, config, loadingState, em
   useEffect(() => {
     setFilteredTreeData(filterTreeData(data, searchText));
   }, [searchText, data]);
+
   return (
     <>
       <div className="sfg--tree-view" data-testid="sfg--tree-view" name={name}>
@@ -132,13 +133,14 @@ const SFGTreeView = ({ name, className, data, selected, config, loadingState, em
         )}
 
         <TreeView
-          hideLabel={config.treeview.hideLabel}
-          label={t(config.treeview.label)}
-          multiselect={config.treeview.multiSelect}
-          showCheckbox={config.treeview.showCheckbox}
+          hideLabel={config.treeView.hideLabel || false}
+          label={t(config.treeView.label)}
+          multiselect={config.treeView.multiSelect}
+          showCheckbox={config.treeView.showCheckbox}
           selected={selected}
-          onSelect={config.treeview.onSelect}
-          size={config.treeview.size}
+          onSelect={config.treeView.onSelect}
+          size={config.treeView.size}
+          isParentSelectable={config.treeView.isParentSelectable}
         >
           {emptyState === undefined || config.emptyStates === undefined ? (
             renderTree({ nodes: filteredTreeData })
@@ -151,7 +153,16 @@ const SFGTreeView = ({ name, className, data, selected, config, loadingState, em
         {config.actions && (
           <div className="sfg--tree-view-actions">
             {config.actions.map((action) => (
-              <Button key={action.name} id={action.id} name={action.name} kind="tertiary" size="sm" {...action.state()} className="full-width sfg--tree-view-action" onClick={action.onAction}>
+              <Button
+                key={action.name}
+                id={action.id}
+                name={action.name}
+                kind="tertiary"
+                size="sm"
+                {...action.state()}
+                className="full-width sfg--tree-view-action"
+                onClick={action.onAction}
+              >
                 {t(action.label)}
               </Button>
             ))}

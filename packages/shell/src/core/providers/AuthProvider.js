@@ -1,87 +1,207 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import axios from "axios";
-import { HttpService } from '../services/HttpService';
-import { useEnvironment } from './EnvironmentProvider';
-const AuthContext = React.createContext();
+import React, { createContext, useState, useContext } from 'react';
 
-const AuthProvider = ({ type, config, children }) => {
-  // let [user, setUser] = useLocalStorage("_session",null);
+export const AuthContext = createContext();
 
-  if (type === 'BASIC' || type === undefined) {
-    const loggedInUser = window.sessionStorage.getItem('_session') || JSON.stringify({ userName: '' });
+export const AuthProvider = ({ handler, children }) => {
+  let loggedInUser = window.sessionStorage.getItem('_session') || JSON.stringify({ userName: '', authenticated: false });
+  loggedInUser = JSON.parse(loggedInUser);
 
-    const [userAuth, setUserAuth] = useState(JSON.parse(loggedInUser));
+  const [isAuthenticated, setIsAuthenticated] = useState(loggedInUser.authenticated);
 
-    const { getEnvironmentValue } = useEnvironment();
+  const [userAuth, setUserAuth] = useState(loggedInUser);
 
-    const signin = (newUser) => {
-      return HttpService.send({
-        url: getEnvironmentValue('LOGIN_URL'), // LOGIN_APIURL
-        method: 'post',
-        data: newUser,
-        baseURL: window.sfgIdentityBaseUrl
-      }).then(
-        (response) => {
-          //setUser(newUser);
-          if (response?.data?.authenticated) {
-            setUserAuth(response?.data);
-            window.sessionStorage.setItem('_session', JSON.stringify(response?.data));
+  const [preLoginUserData, setPreLoginUserData] = useState(null);
+
+  const [loginUserData, setLoginUserData] = useState(null);
+
+  const [postLoginUserData, setPostLoginUserData] = useState(null);
+
+  const [preLogoutUserData, setPreLogoutUserData] = useState(null);
+
+  const [logoutUserData, setLogoutUserData] = useState(null);
+
+  const [postLogoutUserData, setPostLogoutUserData] = useState(null);
+
+  const [preLoginUserError, setPreLoginUserError] = useState(null);
+
+  const [loginUserError, setLoginUserError] = useState(null);
+
+  const [postLoginUserError, setPostLoginUserError] = useState(null);
+
+  const [preLogoutUserError, setPreLogoutUserError] = useState(null);
+
+  const [logoutUserError, setLogoutUserError] = useState(null);
+
+  const [postLogoutUserError, setPostLogoutUserError] = useState(null);
+
+  const login = (loginUser) => {
+    return new Promise((resolve, reject) => {
+      let preLoginUserData, loginUserData, postLoginUserData;
+
+      // Reset any previous login errors
+      setLoginUserError(null);
+
+      Promise.resolve()
+        .then(() => {
+          if (typeof handler.onPreAuthenticate === 'function') {
+            return handler.onPreAuthenticate(loginUser);
+          } else {
+            return null;
           }
-          return response;
-        },
-        (rejectedResponse) => {
-          console.error(rejectedResponse);
-          return rejectedResponse.response;
-        }
-      );
-    };
+        })
+        .catch((error) => {
+          // Handle pre-authentication error
+          setPreLoginUserError(error.message);
+          reject(error); // Reject the promise
+        })
+        .then((preData) => {
+          preLoginUserData = preData;
+          if (typeof handler.onAuthenticate === 'function') {
+            return handler.onAuthenticate(loginUser, preData);
+          } else {
+            return null;
+          }
+        })
+        .catch((error) => {
+          // Handle authentication error
+          setLoginUserError(error.message);
+          reject(error); // Reject the promise
+        })
+        .then((userData) => {
+          loginUserData = userData;
+          loginUserData.lastLoggedIn = new Date(Date.now()).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: undefined,
+            hour12: true
+          })
+          if (typeof handler.onPostAuthenticate === 'function') {
+            return handler.onPostAuthenticate(loginUser, preLoginUserData, userData);
+          } else {
+            return null;
+          }
+        })
+        .catch((error) => {
+          // Handle post-authentication error
+          setPostLoginUserError(error.message);
+          reject(error); // Reject the promise
+        })
+        .then((postData) => {
+          postLoginUserData = postData;
 
-    const signout = (callback) => {
-      //return fakeAuthProvider.signout(() => {
-      setUserAuth({});
-      window.sessionStorage.clear();
-      setTimeout(callback, 100);
-      //});
-    };
+          // Update states after successful login
+          setPreLoginUserData(preLoginUserData);
+          setLoginUserData(loginUserData);
+          setPostLoginUserData(postLoginUserData);
 
-    let value = { user: userAuth, signin, signout };
+          // Update authentication status and store user data in session storage
+          setIsAuthenticated(true);
+          setUserAuth(loginUserData);
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-  } else if (type === 'JWT') {
-    // State to hold the authentication token
-    const [token, setToken_] = useState(localStorage.getItem('token'));
+          window.sessionStorage.setItem('_session', !!loginUserData ? JSON.stringify(loginUserData) : '');
 
-    // Function to set the authentication token
-    const setToken = (newToken) => {
-      setToken_(newToken);
-    };
+          // Resolve the promise with the login user data
+          resolve(loginUserData);
+        })
+        .catch((error) => {
+          // Handle any other unexpected error
+          reject(error);
+        });
+    });
+  };
 
-    useEffect(() => {
-      if (token) {
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-        localStorage.setItem('token', token);
-      } else {
-        delete axios.defaults.headers.common['Authorization'];
-        localStorage.removeItem('token');
-      }
-    }, [token]);
+  const logout = () => {
+    return new Promise((resolve, reject) => {
+      let preLogoutUserData, logoutUserData, postLogoutUserData;
 
-    // Memoized value of the authentication context
-    const contextValue = useMemo(
-      () => ({
-        token,
-        setToken
-      }),
-      [token]
-    );
+      // Reset any previous logout errors
+      setLogoutUserError(null);
 
-    // Provide the authentication context to the children components
-    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
-  }
+      Promise.resolve()
+        .then(() => {
+          if (typeof handler.onPreLogout === 'function') {
+            return handler.onPreLogout();
+          } else {
+            return null;
+          }
+        })
+        .catch((error) => {
+          // Handle pre-logout error
+          setPreLogoutUserError(error.message);
+          reject(error); // Reject the promise
+        })
+        .then((preData) => {
+          preLogoutUserData = preData;
+          if (typeof handler.logout === 'function') {
+            return handler.logout();
+          } else {
+            return null;
+          }
+        })
+        .catch((error) => {
+          // Handle logout error
+          setLogoutUserError(error.message);
+          reject(error); // Reject the promise
+        })
+        .then((userData) => {
+          logoutUserData = userData;
+          if (typeof handler.onPostLogout === 'function') {
+            return handler.onPostLogout(userData);
+          } else {
+            return null;
+          }
+        })
+        .catch((error) => {
+          // Handle post-logout error
+          setPostLogoutUserError(error.message);
+          reject(error); // Reject the promise
+        })
+        .then((postData) => {
+          postLogoutUserData = postData;
+
+          // Update states after successful logout
+          setPreLogoutUserData(preLogoutUserData);
+          setLogoutUserData(logoutUserData);
+          setPostLogoutUserData(postLogoutUserData);
+
+          // Update authentication status and remove user data from session storage
+          setIsAuthenticated(false);
+          setUserAuth(null);
+          window.sessionStorage.removeItem('_session');
+
+          // Resolve the promise
+          resolve();
+        })
+        .catch((error) => {
+          // Handle any other unexpected error
+          reject(error);
+        });
+    });
+  };
+  // Value to be provided by AuthContext
+  const authContextValue = {
+    isAuthenticated,
+    user: userAuth,
+    preLoginUserData,
+    loginUserData,
+    postLoginUserData,
+    preLogoutUserData,
+    logoutUserData,
+    postLogoutUserData,
+    preLoginUserError,
+    loginUserError,
+    postLoginUserError,
+    preLogoutUserError,
+    logoutUserError,
+    postLogoutUserError,
+    login,
+    logout
+  };
+
+  return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;
 };
 
-const useAuth = () => {
-  return React.useContext(AuthContext);
+// Custom hook to use AuthContext
+export const useAuth = () => {
+  return useContext(AuthContext);
 };
-
-export { AuthProvider, AuthContext, useAuth };

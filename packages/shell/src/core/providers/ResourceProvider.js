@@ -5,8 +5,8 @@ import { ResourceMappingService } from '../services/ResourceMappingService';
 const ResourceContext = React.createContext();
 
 const ResourceProvider = ({ children, resourceMappings }) => {
-  const { user } = useAuth();
-  const rms = new ResourceMappingService('', resourceMappings, user.roles, user.permissions);
+  const { user, isAuthenticated } = useAuth();
+  const rms = new ResourceMappingService('', resourceMappings, isAuthenticated ? user.roles : [], isAuthenticated ? user.permissions : []);
 
   return (
     <ResourceContext.Provider
