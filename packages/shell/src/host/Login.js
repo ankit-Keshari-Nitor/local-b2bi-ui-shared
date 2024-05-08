@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Theme, Header, HeaderName, HeaderGlobalBar, HeaderGlobalAction, Form, TextInput, Button, Checkbox } from '@carbon/react';
@@ -48,6 +48,7 @@ const ShellLogin = (props) => {
       localStorage.removeItem('userId');
     }
 
+    /*
     auth.signin({ userName: userId, pwd: formData.password }).then((response) => {
       setIsSubmitting(false);
       if (response === undefined) {
@@ -65,7 +66,21 @@ const ShellLogin = (props) => {
         }
       }
     });
+    */
+    auth.login({ userName: userId, pwd: formData.password }).then(() => {
+      // setTimeout(() => {}, 100);
+    });
   };
+
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      setLoginError(null);
+
+      navigate(from, { replace: true });
+    } else {
+      setLoginError(auth.loginUserError);
+    }
+  }, [auth]);
 
   const {
     register,
@@ -103,7 +118,11 @@ const ShellLogin = (props) => {
                 invalid={errors.userId ? true : false}
                 labelText={t('shell:login.userId')}
                 placeholder=""
-                {...register('userId', { required: t("shell:form.validations.required", {fieldName: t('shell:login.userId')}), minLength: { value: 3, message: t("shell:form.validations.minLength", {fieldName: t('shell:login.userId'), count: 3})}, maxLength: { value: 50, message: t("shell:form.validations.maxLength", {fieldName: t('shell:login.userId'), count: 50})} })}
+                {...register('userId', {
+                  required: t('shell:form.validations.required', { fieldName: t('shell:login.userId') }),
+                  minLength: { value: 3, message: t('shell:form.validations.minLength', { fieldName: t('shell:login.userId'), count: 3 }) },
+                  maxLength: { value: 50, message: t('shell:form.validations.maxLength', { fieldName: t('shell:login.userId'), count: 50 }) }
+                })}
               />
               {isEnabled('LOGIN.FORGOT_ID') && (
                 <div className="forgot-link">
@@ -120,7 +139,7 @@ const ShellLogin = (props) => {
                 kind="primary"
                 renderIcon={ArrowRight}
                 iconDescription={t('shell:login.continue')}
-                disabled={!watch("userId") || errors.userId ? true : false}
+                disabled={!watch('userId') || errors.userId ? true : false}
                 tabIndex={0}
                 onClick={handleSubmit(capturePassword)}
               >
@@ -168,7 +187,11 @@ const ShellLogin = (props) => {
                 placeholder=""
                 hidePasswordLabel={t('shell:login.togglePasswordOn')}
                 showPasswordLabel={t('shell:login.togglePasswordOff')}
-                {...register('password', { required: t("shell:form.validations.required", {fieldName: t('shell:login.password')}), minLength: { value: 8, message: t("shell:form.validations.minLength", {fieldName: t('shell:login.password'), count: 8})}, maxLength: { value: 15, message: t("shell:form.validations.maxLength", {fieldName: t('shell:login.password'), count: 15})} })}
+                {...register('password', {
+                  required: t('shell:form.validations.required', { fieldName: t('shell:login.password') }),
+                  minLength: { value: 8, message: t('shell:form.validations.minLength', { fieldName: t('shell:login.password'), count: 8 }) },
+                  maxLength: { value: 15, message: t('shell:form.validations.maxLength', { fieldName: t('shell:login.password'), count: 15 }) }
+                })}
               />
               {isEnabled('LOGIN.FORGOT_PASSWORD') && (
                 <div className="forgot-link">
@@ -184,7 +207,15 @@ const ShellLogin = (props) => {
               )}
             </div>
             <div className="form-btn-container">
-              <Button data-testid="login" name="login" kind="primary" disabled={!watch("password") || isSubmitting || errors.password ? true : false} tabIndex={0} type="button" onClick={submitLogin}>
+              <Button
+                data-testid="login"
+                name="login"
+                kind="primary"
+                disabled={!watch('password') || isSubmitting || errors.password ? true : false}
+                tabIndex={0}
+                type="button"
+                onClick={submitLogin}
+              >
                 {t('shell:login.login_btn')}
               </Button>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageNotFound, NotAuthorized } from './common/pages';
-import { routes as FeatureTestRoutes} from './featuret-test';
+import { routes as FeatureTestRoutes} from './feature-test';
 
 
 const routes = [

@@ -30,6 +30,7 @@ import DataTableFilter from './DataTableFilter';
 import TransformTableData from './transform-table-data';
 import { Grid, Column, Tag, Link } from '@carbon/react';
 import { SFGEmptyState } from '../EmptyState/EmptyState';
+import AppliedFilter from './AppliedFilter';
 import './DataTable.scss';
 
 // const rowSelect = ['none', 'single', 'multiple', 'all'];
@@ -74,7 +75,6 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
 
   const [searchText, setSearchText] = useState('');
   const [appliedFilter, setAppliedFilter] = useState([]);
-  const [appliedFilterDisplay, setAppliedFilterDisplay] = useState();
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: config.paginationConfig.pageSize || 20
@@ -107,93 +107,35 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
 
   useEffect(() => {
     setHeaderData(
-      config.columnConfig.map((column) => {
-        return {
-          header: t(column.label),
-          key: column.value
-        };
-      })
+      config.columnConfig
+        .filter((column) => column.isVisible || column.isVisible === undefined)
+        .map((column) => {
+          return {
+            header: t(column.label),
+            key: column.value,
+            isSortable: column.isSortable
+          };
+        })
     );
   }, [config]);
 
   useEffect(() => {
-    setAppliedFilterDisplay(renderAppliedFilterTags());
+    //setAppliedFilterDisplay(renderAppliedFilterTags());
     pagination.page = 1;
-  }, [appliedFilter]);
+  }, [controller?.filterState]);
 
-  const renderAppliedFilterTags = () => {
-    const applicableFilter = Object.entries(appliedFilter).filter(([_, value]) => value !== '' && value !== null && value.length > 0);
-    if (applicableFilter.length > 0) {
-      const appliedFilterDisplay = applicableFilter.map(([key, value]) => {
-        const filterItem = config.filterConfig.fields.find((item) => {
-          return item.name === key;
-        });
-        let displayValue;
-        if (filterItem.type === 'checkbox-group') {
-          const filteredOptions = filterItem.options.filter((optionItem) => {
-            return value.find((val) => val === optionItem.value);
-          });
-          displayValue = filteredOptions
-            .map((option) => {
-              return option.label.indexOf(':') > -1 ? t(option.label) : option.label;
-            })
-            .toString();
-        } else if (filterItem.type === 'radio-group') {
-          const filteredOptions = filterItem.options.filter((optionItem) => {
-            return value === optionItem.value;
-          });
-          displayValue = filteredOptions
-            .map((option) => {
-              return option.label.indexOf(':') > -1 ? t(option.label) : option.label;
-            })
-            .toString();
-        }else {
-          displayValue = value;
-        }
-        if (displayValue.indexOf(':') > -1) {
-          displayValue = t(displayValue);
-        }
-        return (
-          <Tag
-            key={key}
-            type="blue"
-            data-testid={'tag-' + key}
-            className="sfg--applied-filter-section-pills"
-            filter
-            title="Clear Filter"
-            size="md"
-            name={filterItem.name}
-            onClose={() => {
-              //delete appliedFilter[key];
-              const { [key]: removedData, ...filterData } = appliedFilter;
-              filterData[key] = '';
-              setAppliedFilter(filterData);
-              config?.filterConfig?.onApply?.(filterData);
-              //config?.filterConfig?.onRemove(key);
-            }}
-          >
-            {t(filterItem.label)}:{displayValue}{' '}
-          </Tag>
-        );
-      });
-      return (
-        <>
-          {appliedFilterDisplay}
+  const onRemoveAppliedFilter = (key) => {
+    //delete appliedFilter[key];
+    const { [key]: removedData, ...filterData } = appliedFilter;
+    filterData[key] = '';
+    //setAppliedFilter(filterData);
+    config?.filterConfig?.onApply?.(filterData);
+    //config?.filterConfig?.onRemove(key);
+  };
 
-          <Link
-            size="sm"
-            onClick={() => {
-              setAppliedFilter({});
-              config?.filterConfig?.onClear();
-            }}
-          >
-            {t('shell:common.filter-section.clear-filter')}
-          </Link>
-        </>
-      );
-    } else {
-      return <></>;
-    }
+  const onClearApplierFilter = () => {
+    //setAppliedFilter({});
+    config?.filterConfig?.onClear();
   };
 
   useEffect(() => {
@@ -213,7 +155,18 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
         <DataTableSkeleton headers={headerData} columnCount={headerData.length} showHeader={config.title ? true : false} rowCount={20}></DataTableSkeleton>
       ) : (
         <>
-          <DataTable rows={rows} headers={headerData} data-testid="data-table">
+          <DataTable
+            rows={rows}
+            headers={headerData}
+            data-testid="data-table"
+            filterRows={
+              config.filterConfig?.onFilterRows
+                ? (data) => {
+                    config.filterConfig.onFilterRows(data);
+                  }
+                : undefined
+            }
+          >
             {({ rows, headers, getHeaderProps, getRowProps, getSelectionProps, getBatchActionProps, onInputChange, selectedRows }) => (
               <TableContainer title={config.title ? config.title : ''} description={config.description ? config.description : ''} className={'sfg--table-container ' + className}>
                 <TableToolbar>
@@ -283,6 +236,7 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                     )}
                     {config.actionsConfig?.toolbarActions &&
                       config.actionsConfig?.toolbarActions
+                        .filter((toolbarAction) => toolbarAction.isVisible || toolbarAction.isVisible === undefined)
                         .filter((toolbarAction) => hasAccess(toolbarAction.resourceKey))
                         .map((toolbarAction, index) => (
                           <Button
@@ -307,6 +261,7 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                         tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
                         onClick={() => config.actionsConfig.primary.onAction()}
                         renderIcon={config.actionsConfig.primary.icon}
+                        disabled={config?.actionsConfig?.primary?.disabled}
                         // size="sm"
                         kind={config.actionsConfig.primary.kind}
                       >
@@ -321,9 +276,9 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                       <DataTableFilter
                         defaultValues={config?.filterConfig?.defaultValues}
                         filterList={config?.filterConfig?.fields}
-                        values={appliedFilter}
+                        values={controller?.filterState}
                         onApply={(data) => {
-                          setAppliedFilter(data);
+                          //setAppliedFilter(data);
                           config?.filterConfig?.onApply?.(data);
                           setShowFilter(false);
                         }}
@@ -332,15 +287,26 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                           config?.filterConfig?.onCancel();
                         }}
                         onClear={() => {
-                          setAppliedFilter({});
+                          //setAppliedFilter({});
                           config?.filterConfig?.onClear();
                         }}
                       ></DataTableFilter>
                     </Column>
                   )}
                   <Column className="sfg--datatable-container-grid-col sfg--datatable-right-section" lg={showFilter ? 12 : 16}>
-                    <div className="sfg--datatable-applied-filters-section">{appliedFilter && appliedFilterDisplay}</div>
-                    <div className="sfg--datatable-table-section">
+                    <div className="sfg--datatable-applied-filters-section">
+                      {appliedFilter && (
+                        <AppliedFilter
+                          appliedFilter={controller?.filterState}
+                          filterConfig={config.filterConfig}
+                          onRemoveFilter={onRemoveAppliedFilter}
+                          onClearFilter={onClearApplierFilter}
+                        />
+                      )}
+                    </div>
+                    <div
+                      className={emptyState !== undefined && config.emptyStateConfig !== undefined ? 'sfg--datatable-table-section has-emptystate' : 'sfg--datatable-table-section'}
+                    >
                       <Table>
                         <TableHead className="sfg--data-table-head">
                           <TableRow>
@@ -351,7 +317,7 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                                 <th scope="col" data-testid="row-selection"></th>
                               ))}
                             {headers.map((header, index) => (
-                              <TableHeader key={index} data-testid={header.key} {...getHeaderProps({ header })}>
+                              <TableHeader key={index} data-testid={header.key} {...getHeaderProps({ header, isSortable: header.isSortable })}>
                                 {header.header}
                               </TableHeader>
                             ))}
@@ -370,6 +336,8 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                                 ))}
                                 {config?.actionsConfig.rowActions && (
                                   <TableCell data-testid="row-actions">
+                                    {/* // TODO: Should update the below condition check logic */}
+                                    {/* {(config?.actionsConfig?.shouldShowRowActions && config?.actionsConfig?.shouldShowRowActions(getSelectedRowData([row], rowObj)[0]) ) && ( */}
                                     <OverflowMenu size="sm" flipped data-testid={'overflow-' + i}>
                                       {filterActions(getSelectedRowData([row], rowObj), config.actionsConfig.rowActions, config.actionsConfig.filterRowActions)
                                         .filter((rowAction) => rowAction.shouldShow)
@@ -379,10 +347,12 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                                             data-testid={rowAction.id}
                                             key={rowAction.id}
                                             itemText={t(rowAction.label)}
+                                            // disabled={config?.actionsConfig.shouldShowRowAction(getSelectedRowData([row], rowObj)[0])}
                                             onClick={() => rowAction.onAction({ id: data.userKey || row.id })}
                                           />
                                         ))}
                                     </OverflowMenu>
+                                    {/* )} */}
                                   </TableCell>
                                 )}
                               </TableRow>

@@ -7,8 +7,12 @@ import { PageProvider, usePage as usePageContext } from './PageProvider';
 import { ResourceContext, ResourceProvider, useResource } from './ResourceProvider';
 import { RouterProvider } from './RouterProvider';
 import { NotificationContext, NotificationProvider, useNotification } from './NotificationProvider';
+import { ApplicationInfoProvider, useApplicationInfo } from './ApplicationInfoProvider';
 
 const ShellProviders = {
+  ApplicationInfoProvider,
+  useApplicationInfo,
+
   AuthProvider,
   AuthContext,
   useAuth,
@@ -46,6 +50,8 @@ const ShellProviders = {
 export default ShellProviders;
 
 export {
+  ApplicationInfoProvider,
+  useApplicationInfo,
   AuthProvider,
   AuthContext,
   useAuth,

@@ -34,13 +34,13 @@ const ModalPageContainer = () => {
       <Layer>
         <ComposedModal
           open={showModal}
-          size="lg"
+          size={modalConfigObj?.size}
           isFullWidth
           className={modalConfigObj ? modalSizeClasses[modalConfigObj.size] : ''}
           onClose={close}
           preventCloseOnClickOutside={true}
         >
-          {showModal && modalConfigObj && modalConfigObj.element}
+          {showModal && modalConfigObj && modalConfig && modalConfigObj.element}
         </ComposedModal>
       </Layer>
     </>

@@ -25,7 +25,17 @@ const useModel = (modelDefinition, context) => {
   }
 
   const setModel = (modelName, value) => {
-    setModelValue['set' + modelName](value);
+    const modelPaths = modelName.split('.');
+    if (modelPaths.length > 1) {
+      const modelData = {
+        ...modelValue[modelPaths[0]],
+        [modelPaths[1]]: value
+      };
+      modelValue[modelPaths[0]] = modelData;
+      setModelValue['set' + modelPaths[0]](modelData);
+    } else {
+      setModelValue['set' + modelName](value);
+    }
   };
   return [modelValue, setModel];
 };
@@ -39,7 +49,12 @@ const useUI = (uiDefinition, context) => {
     setUiValue['set' + key] = setUiX;
   }
   const setUI = (propKey, value) => {
-    setUiValue['set' + propKey](value);
+    try {
+      setUiValue['set' + propKey](value);
+    } catch (err) {
+      console.error(propKey);
+      console.error(err);
+    }
   };
   return [uiValue, setUI];
 };
@@ -92,12 +107,12 @@ const useDataSource = (dsDefinition, context) => {
             })
             .catch((err) => {
               if (err.code === 'ERR_NETWORK') {
-                context.utils.showNotificationMessage('toast','error', err.message);
+                context.utils.showNotificationMessage('toast', 'error', err.message);
               } else if (err.response.data && err.response.data.errorCode) {
                 // context.utils.showNotificationMessage('toast','error', context.t(`mod-api:${err.response.data.statusCode}.errorCode.${err.response.data.errorCode}`));
                 context.utils.showNotificationMessage('toast', 'error', err.response.data.message);
               } else {
-                context.utils.showNotificationMessage('toast','error', err.response.statusText);
+                context.utils.showNotificationMessage('toast', 'error', err.response.statusText);
               }
               reject(err);
             });
@@ -136,6 +151,26 @@ const useDataSource = (dsDefinition, context) => {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  ds.makeSequentialDSCalls = function (dsArray) {
+    const results = [];
+    let dsIndex = 0;
+    return dsArray
+      .reduce((chain, dsItem) => {
+        return chain.then(() => {
+          const dsItemConfig = dsItem(dsIndex > 0 ? results[dsIndex] : {}, results);
+          dsIndex++;
+          return ds[dsItemConfig.name](dsItemConfig.input, dsItemConfig.options).then((data) => {
+            results.push(data);
+          });
+        });
+      }, Promise.resolve())
+      .then(() => results)
+      .catch((error) => {
+        console.error('Error:', error);
+        return []; // Return an empty array in case of error
+      });
   };
   return ds;
 };
@@ -179,16 +214,19 @@ const usePage = (dependencies, pageDefinition, pageConfig) => {
       getValues,
       setValue,
       reset,
+      resetField,
       watch,
       setError,
-      clearErrors
+      clearErrors,
+      control
     } = tempUseHook(
       useForm,
       {
-        mode: 'onBlur',
+        mode: 'onChange',
         defaultValues: {
           ...pageDefinition.form[form]
-        }
+        },
+        name: form
       },
       form
     );
@@ -200,9 +238,12 @@ const usePage = (dependencies, pageDefinition, pageConfig) => {
       getValues,
       setValue,
       reset,
+      resetField,
       watch,
       setError,
-      clearErrors
+      clearErrors,
+      control,
+      attributes: pageDefinition.form[form]
     };
   }
   page.config = pageDefinition.config;

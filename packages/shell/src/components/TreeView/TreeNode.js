@@ -49,11 +49,11 @@ export default function TreeNode({
         disabled,
         onTreeSelect,
         selected,
-        showCheckbox: enableCheckbox? (node.props.showCheckbox !== undefined? node.props.showCheckbox : enableCheckbox) : enableCheckbox,
+        showCheckbox: enableCheckbox ? (node.props.showCheckbox !== undefined ? node.props.showCheckbox : enableCheckbox) : enableCheckbox,
         enableCheckbox: enableCheckbox,
         isParentSelectable,
         // checked: determineShallowCheckState(node),
-        tabIndex: (!node.props.disabled && -1) || null,
+        tabIndex: (!node.props.disabled && -1) || null
       });
     }
   });
@@ -73,10 +73,10 @@ export default function TreeNode({
     [`${prefix}--tree-node--with-icon`]: Icon,
     [`${prefix}--tree-node--with-checkbox`]: showCheckbox,
     [`${prefix}--tree-leaf-node`]: !children,
-    [`${prefix}--tree-parent-node`]: children    
+    [`${prefix}--tree-parent-node`]: children
   });
   const toggleClasses = classNames(`${prefix}--tree-parent-node__toggle-icon`, {
-    [`${prefix}--tree-parent-node__toggle-icon--expanded`]: expanded,
+    [`${prefix}--tree-parent-node__toggle-icon--expanded`]: expanded
   });
   function handleToggleClick(event) {
     event.stopPropagation();
@@ -88,7 +88,8 @@ export default function TreeNode({
   }
   function handleClick(event) {
     event.stopPropagation();
-    if (!disabled && (enableCheckbox && showCheckbox) && (!children || isParentSelectable)) {
+    // (enableCheckbox && showCheckbox) &&
+    if (!disabled && (!children || isParentSelectable)) {
       onTreeSelect?.(event, { id, label, value });
       onNodeSelect?.(event, { id, label, value });
       rest?.onClick?.(event);
@@ -204,15 +205,15 @@ export default function TreeNode({
     onFocus: handleFocusEvent,
     onKeyDown: handleKeyDown,
     ref: currentNode,
-    role: 'treeitem',
+    role: 'treeitem'
   };
 
   if (!children) {
     return (
       <li {...treeNodeProps}>
         <div className={`${prefix}--tree-node__label`} ref={currentNodeLabel}>
-          {showCheckbox && (
-            <span className={`${prefix}--tree-node__checkbox`} >
+          {showCheckbox && isParentSelectable && (
+            <span className={`${prefix}--tree-node__checkbox`}>
               <Checkbox
                 id={`${id}-checkbox`}
                 checked={isSelected}
@@ -222,8 +223,7 @@ export default function TreeNode({
                 onClick={(event) => {
                   event.stopPropagation();
                 }}
-                >
-              </Checkbox>
+              ></Checkbox>
             </span>
           )}
           <span className={`${prefix}--tree-node__label__details`}>
@@ -231,7 +231,12 @@ export default function TreeNode({
             {label}
           </span>
           {additionalInfo && (
-            <span className={`${prefix}--tree-node__additionalinfo`} onClick={(event)=> { event.stopPropagation()}}>
+            <span
+              className={`${prefix}--tree-node__additionalinfo`}
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
               {additionalInfo}
             </span>
           )}
@@ -245,10 +250,7 @@ export default function TreeNode({
       <div className={`${prefix}--tree-node__label`} ref={currentNodeLabel}>
         {/* https://github.com/carbon-design-system/carbon/pull/6008#issuecomment-675738670 */}
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-        <span
-          className={`${prefix}--tree-parent-node__toggle`}
-          disabled={disabled}
-          onClick={handleToggleClick}>
+        <span className={`${prefix}--tree-parent-node__toggle`} disabled={disabled} onClick={handleToggleClick}>
           <CaretDown className={toggleClasses} />
         </span>
         {showCheckbox && isParentSelectable && (
@@ -263,7 +265,7 @@ export default function TreeNode({
               onClick={(event) => {
                 event.stopPropagation();
               }}
-              ></Checkbox>
+            ></Checkbox>
           </span>
         )}
         <span className={`${prefix}--tree-node__label__details`}>
@@ -271,7 +273,12 @@ export default function TreeNode({
           {label}
         </span>
         {additionalInfo && (
-          <span className={`${prefix}--tree-node__additionalinfo`} onClick={(event)=> { event.stopPropagation()}}>
+          <span
+            className={`${prefix}--tree-node__additionalinfo`}
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+          >
             {additionalInfo}
           </span>
         )}
@@ -356,12 +363,10 @@ TreeNode.propTypes = {
   /**
    * Array containing all selected node IDs in the tree
    */
-  selected: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-  ),
+  selected: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
 
   /**
    * Specify the value of the TreeNode
    */
-  value: PropTypes.string,
+  value: PropTypes.string
 };

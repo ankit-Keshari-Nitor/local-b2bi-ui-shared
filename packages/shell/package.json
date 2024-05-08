@@ -1,15 +1,16 @@
 {
   "name": "@b2bi/shell",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "React Shell for B2Bi Apps",
   "main": "es/index.js",
   "module": "es/index.js",
   "author": "Pradeep Kariyappa",
   "license": "PRIVATE",
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "node tasks/build.js",
-    "build-dev": "webpack --mode development"
+    "build-dev": "webpack --mode development",
+    "publish:package": "yarn publish"
   },
   "dependencies": {},
   "peerDependencies": {
