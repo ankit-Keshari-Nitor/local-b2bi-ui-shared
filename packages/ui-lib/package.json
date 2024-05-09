@@ -5,7 +5,7 @@
   "main": "index.js",
   "author": "Pradeep Kariyappa",
   "license": "PRIVATE",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@carbon/react": "1.49.0",
     "axios": "^1.6.2",
@@ -21,5 +21,11 @@
     "react-moment": "^1.1.3",
     "react-router-dom": "^6.20.1",
     "use-react-router-breadcrumbs": "^4.0.1"
+  },
+  "scripts": {
+    "publish": "yarn publish"
+  },
+  "publishConfig": {
+    "registry": "https://artifactory.syncdi1.us.syncsort.com/artifactory/api/npm/b2bi-npm/"
   }
 }

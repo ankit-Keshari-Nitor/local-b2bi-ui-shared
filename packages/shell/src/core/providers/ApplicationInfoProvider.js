@@ -6,36 +6,51 @@ const ApplicationInfoContext = createContext();
 // Create a context provider component
 const ApplicationInfoProvider = ({ children }) => {
   // State to store user details
-  const [userDetails, setUserDetails] = useState(null);
+  const [userContext, setUserContext] = useState({});
 
-  const appContextStr = window.sessionStorage.getItem('appContext');
-  let appContext = {};
-  if (appContextStr !== '' && appContextStr !== null) {
-    appContext = JSON.parse(appContextStr);
-  }
+  const [defaultRoute, setDefaultRoute] = useState('/');
+
   // State to store app details
-  const [appDetails, setAppDetails] = useState({
-    defaultRoute: '/manage/myorganization',
-    context: appContext
-  });
+  const [appContext, setAppContext] = useState({});
 
-  const [organizationContext, setOrganizationContext] = useState({
-    organizationKey: 'DEFAULT',
-    organizationName: 'Default Organization'
-  });
+  const [organizationContext, setOrganizationContext] = useState({});
 
-  // State to store organization details
-  const [organizationDetails, setOrganizationDetails] = useState(null);
+  const setDefaults = () => {
+    const userContextStr = window.sessionStorage.getItem('userContext');
+    let userContext = {};
+    if (userContextStr !== '' && userContextStr !== null) {
+      userContext = JSON.parse(userContextStr);
+    }
+    const orgContextStr = window.sessionStorage.getItem('orgContext');
+    let orgContext = {};
+    if (orgContextStr !== '' && orgContextStr !== null) {
+      orgContext = JSON.parse(orgContextStr);
+    }
+    const appContextStr = window.sessionStorage.getItem('appContext');
+    let appContext = {};
+    if (appContextStr !== '' && appContextStr !== null) {
+      appContext = JSON.parse(appContextStr);
+    }
+
+    const defaultRouteStr = window.sessionStorage.getItem('defaultRoute');
+    setDefaultRoute(defaultRouteStr);
+    setUserContext(userContext);
+    setAppContext(appContext);
+    setOrganizationContext(orgContext);
+  };
 
   return (
     <ApplicationInfoContext.Provider
       value={{
-        userDetails,
-        setUserDetails,
-        appDetails,
-        setAppDetails,
-        organizationDetails,
-        setOrganizationDetails
+        userContext,
+        setUserContext,
+        appContext,
+        setAppContext,
+        organizationContext,
+        setOrganizationContext,
+        defaultRoute,
+        setDefaultRoute,
+        setDefaults
       }}
     >
       {children}

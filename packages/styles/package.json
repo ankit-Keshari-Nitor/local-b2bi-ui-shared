@@ -5,5 +5,11 @@
   "main": "index.js",
   "author": "Pradeep Kariyappa",
   "license": "Private",
-  "private": true
+  "private": false,
+  "scripts": {
+    "publish": "yarn publish"
+  },
+  "publishConfig": {
+    "registry": "https://artifactory.syncdi1.us.syncsort.com/artifactory/api/npm/b2bi-npm/"
+  }
 }

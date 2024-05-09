@@ -10,7 +10,7 @@
   "scripts": {
     "build": "node tasks/build.js",
     "build-dev": "webpack --mode development",
-    "publish:package": "yarn publish"
+    "publish": "yarn publish"
   },
   "dependencies": {},
   "peerDependencies": {
@@ -24,5 +24,8 @@
       "include": "src/**",
       "buildDelay": 1000
     }
+  },
+  "publishConfig": {
+    "registry": "https://artifactory.syncdi1.us.syncsort.com/artifactory/api/npm/b2bi-npm/"
   }
 }
