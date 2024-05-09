@@ -41,7 +41,7 @@ const Container = (props) => {
   const { t } = useTranslation();
   const { sideNav, headerMenuList } = useConfiguration();
   const { user, logout } = useAuth();
-  const { appDetails, setAppDetails } = useApplicationInfo();
+  const { defaultRoute, organizationContext, setDefaults } = useApplicationInfo();
   const [showRightPanel, setShowRightPanel] = useState(false);
   const { hasAccess } = useResource();
   const [currentPage, setCurrentPage] = useState();
@@ -131,27 +131,18 @@ const Container = (props) => {
   useEffect(() => {
     const paths = location.pathname.split('/');
     if (paths.length === 2 && paths[1].length === 0) {
-      navigate(appDetails.defaultRoute);
-      setCurrentPage(appDetails.defaultRoute);
+      navigate(defaultRoute);
+      setCurrentPage(defaultRoute);
     } else {
       setCurrentPage('/' + paths[1]);
     }
 
-    const appContextStr = window.sessionStorage.getItem('appContext');
-    let appContext = {};
-    if (appContextStr !== '' && appContextStr !== null) {
-      appContext = JSON.parse(appContextStr);
-    }
-
-    setAppDetails({
-      ...appDetails,
-      context: appContext
-    });
+    setDefaults();
   }, []);
 
   return (
     <>
-      {appDetails.context && (
+      {organizationContext && (
         <div className="container">
           <HeaderContainer
             render={({ isSideNavExpanded, onClickSideNavExpand }) => (
@@ -169,7 +160,7 @@ const Container = (props) => {
                         <Enterprise size={24} />
                         &nbsp;
                         <div className="user-details">
-                          <div>{appDetails.context.organization?.organizationName}</div>
+                          <div>{organizationContext?.organizationName}</div>
                         </div>
                         &nbsp;
                       </HeaderGlobalAction>
