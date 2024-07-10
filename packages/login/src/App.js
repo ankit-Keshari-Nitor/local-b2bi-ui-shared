@@ -6,7 +6,7 @@ export default function App(props) {
   return (
     <div>
     {/* <Login /> */}
-      <Login1 />
+      <Login1 props={props}/>
     </div>
   );
 };
