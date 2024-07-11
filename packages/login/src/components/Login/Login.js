@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import data from "../../config/data.json";
 import './Login.scss';
 
 const Login = () => {
@@ -55,7 +54,7 @@ const Login = () => {
         {Object.keys(formErrors).length === 0 && isSubmit ? <div className="ui message success">Signed in successfully</div> : console.log('Entered Details', formValues)}
 
         <form onSubmit={handleSubmit}>
-          <h1>{data.title}</h1>
+          <h1>App title</h1>
           <div className="ui divider"></div>
           <div className="ui form">
             <div className="field">

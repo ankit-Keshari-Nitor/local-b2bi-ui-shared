@@ -6,8 +6,7 @@ import './Login1.scss';
 
 const Login1 = (props) => {
 
-  const initialValues = {userId: '', password: ''};
-  const [formValues, setFormValues] = useState(initialValues);
+  const [formValues, setFormValues] = useState({userId: '', password: ''});
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
