@@ -20,10 +20,38 @@ const Login1 = (props) => {
     setFormValues({ ...formValues, [name]: value });
   };
 
-  const submitLogin = (data) => {
+  useEffect(() => {
+    if (Object.keys(formErrors).length === 0 && isSubmitting) {
+      console.log("val>>>>",formValues);
+    }
+  }, [formErrors, formValues, isSubmitting]);
+
+ const validate = (values) => {
+    const errors = {};
+    if (!values) {
+      errors.password = 'Password is required';
+    } else if (values.length < 4) {
+      errors.password = 'Password must be more than 4 characters';
+    } else if (values.length > 10) {
+      errors.password = 'Password cannot exceed more than 10 characters';
+    }
+    return errors;
+  };
+  
+  const forgotId = () => {
+    setState({ ...state, page: 'forgotid' });
+  };
+
+  const capturePassword = () => {
+    setState({ ...state, page: 'password' });
+    setIsSubmitting(false);
+  };
+
+  const submitLogin = (e) => {
+    e.preventDefault();
+    setFormErrors(validate(formValues.password));
     setIsSubmitting(true);
-    setFormErrors(validate(formValues));
-    // event.preventDefault();
+
     let formData = getValues();
 
     if (formData.rememberId) {
@@ -33,41 +61,6 @@ const Login1 = (props) => {
     } else {
       localStorage.removeItem('userId');
     }
-    console.log("Form",formValues);
-  };
-
-  useEffect(() => {
-    if (Object.keys(formErrors).length === 0 && isSubmitting) {
-      console.log("val",formValues);
-    }
-  }, [formErrors, formValues, isSubmitting]);
-
- const validate = (values) => {
-    const errors = {};
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-   
-    if (!values.userId) {
-      errors.userId = 'User Id is required!';
-    } else if (!regex.test(values.email)) {
-      errors.userId = 'This is not a valid email format!';
-    }
-    if (!values.password) {
-      errors.password = 'Password is required';
-    } else if (values.password.length < 4) {
-      errors.password = 'Password must be more than 4 characters';
-    } else if (values.password.length > 10) {
-      errors.password = 'Password cannot exceed more than 10 characters';
-    }
-    return errors;
-  };
-
-  const forgotId = () => {
-    setState({ ...state, page: 'forgotid' });
-  };
-
-  const capturePassword = () => {
-    setState({ ...state, page: 'password' });
-    setIsSubmitting(false);
   };
 
   const {
@@ -78,8 +71,6 @@ const Login1 = (props) => {
   } = useForm({
     mode: 'onChange',
     defaultValues: {
-     // userId: localStorage.userId,
-      //password: formValues.password,
       rememberId: true,
       rememberPassword: false
     }
@@ -101,7 +92,7 @@ const Login1 = (props) => {
               <TextInput
                 id="userId"
                 labelText="User Id"
-                placeholder="username@test.com"
+                placeholder="Enter User Id"
                 name="userId"
                 value={formValues.userId}
                 onChange={handleChange}
@@ -182,7 +173,6 @@ const Login1 = (props) => {
               <Button
                 name="login"
                 kind="primary"
-                disabled={isSubmitting || !formValues.password ? true : false}
                 type="button"
                 onClick={submitLogin}
               >
