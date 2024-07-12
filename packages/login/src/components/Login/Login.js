@@ -17,6 +17,7 @@ const Login = (props) => {
   const handleChange = (e) => {
     const { name, value, userId } = e.target;
     setFormValues({ ...formValues, [name]: value });
+    setFormErrors(validate({...formValues, [name]: value }));
   };
 
   useEffect(() => {
@@ -27,11 +28,18 @@ const Login = (props) => {
 
  const validate = (values) => {
     const errors = {};
-    if (!values) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+   
+    if (!values.userId) {
+      errors.userId = 'User Id is required!';
+    } else if (!regex.test(values.userId)) {
+      errors.userId = 'This is not a valid email format!';
+    }
+    if (!values.password) {
       errors.password = 'Password is required';
-    } else if (values.length < 4) {
+    } else if (values.password.length < 4) {
       errors.password = 'Password must be more than 4 characters';
-    } else if (values.length > 10) {
+    } else if (values.password.length > 10) {
       errors.password = 'Password cannot exceed more than 10 characters';
     }
     return errors;
@@ -48,7 +56,7 @@ const Login = (props) => {
 
   const submitLogin = (e) => {
     e.preventDefault();
-    setFormErrors(validate(formValues.password));
+    // setFormErrors(validate(formValues.password));
     setIsSubmitting(true);
 
     let formData = getValues();
@@ -96,7 +104,7 @@ const Login = (props) => {
                 value={formValues.userId}
                 onChange={handleChange}
               />
-              <p>{formErrors.userId}</p>
+              {formErrors.userId && <div className="notification-container">{formErrors.userId}</div>}
                 <div className="forgot-link">
                   <a id="forget_id_title" onClick={forgotId}>
                     Forgot ID?
@@ -110,7 +118,7 @@ const Login = (props) => {
                 kind="primary"
                 renderIcon={ArrowRight}
                 iconDescription="continue"
-                disabled={!formValues.userId ? true : false}
+                disabled={!formValues.userId || formErrors.userId ? true : false}
                 tabIndex={0}
                 onClick={handleSubmit(capturePassword)}
               >
@@ -174,6 +182,7 @@ const Login = (props) => {
                 kind="primary"
                 type="button"
                 onClick={submitLogin}
+                disabled={!formValues.password || formErrors.password ? true : false}
               >
               Log in
               </Button>
