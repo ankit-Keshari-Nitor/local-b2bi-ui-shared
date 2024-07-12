@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Theme, Header, HeaderName, Form, TextInput, Button, Checkbox } from '@carbon/react';
 import { Information, ArrowRight, CostTotal } from '@carbon/icons-react';
-import './Login1.scss';
+import './Login.scss';
 
-const Login1 = (props) => {
+const Login = (props) => {
 
   const [formValues, setFormValues] = useState({userId: '', password: ''});
   const [formErrors, setFormErrors] = useState({});
@@ -216,4 +216,4 @@ const Login1 = (props) => {
   );
 };
 
-export default Login1;
+export default Login;
