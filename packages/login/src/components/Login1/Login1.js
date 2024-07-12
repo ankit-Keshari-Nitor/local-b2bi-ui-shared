@@ -156,7 +156,7 @@ const Login1 = (props) => {
                 value={formValues.password}
                 onChange={handleChange}
               />
-              <p>{formErrors.password}</p>
+              {formErrors.password && <div className="notification-container">{formErrors.password}</div>}
                 <div className="forgot-link">
                   <a
                     id="forget_password_title"
