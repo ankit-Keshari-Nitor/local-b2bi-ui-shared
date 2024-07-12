@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Theme, Header, HeaderName, HeaderGlobalBar, HeaderGlobalAction, Form, TextInput, Button, Checkbox } from '@carbon/react';
+import { Theme, Header, HeaderName, Form, TextInput, Button, Checkbox } from '@carbon/react';
 import { Information, ArrowRight, CostTotal } from '@carbon/icons-react';
 import './Login1.scss';
 
