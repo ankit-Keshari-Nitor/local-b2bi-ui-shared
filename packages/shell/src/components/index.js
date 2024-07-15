@@ -12,9 +12,10 @@ import { ModalMessage } from './messages/ModalMessage';
 import { NotificationMessage } from './messages/NotificationMessage';
 import { ModalPageContainer } from './modal/ModalPage';
 import { LanguageSelector } from './LanguageSelector/LanguageSelector';
-import { RoutePage } from './RoutePage/RoutePage';
+import { PageContainer } from './PageContainer/PageContainer';
 import { Page } from './page/Page';
 import { PageHeader } from './page/PageHeader';
+import { PageBody } from './page/PageBody';
 import { PageActions } from './page/PageActions';
 import { ToastNotificationContainer } from './ToastNotification';
 
@@ -36,7 +37,8 @@ const ShellComponents = {
   Page,
   PageActions,
   PageHeader,
-  RoutePage,
+  PageBody,
+  PageContainer,
   CDSTreeView,
   CDSTreeNode,
   ToastNotificationContainer
@@ -59,9 +61,10 @@ export {
   SelectedValues,
   LanguageSelector,
   Page,
+  PageBody,
   PageActions,
   PageHeader,
-  RoutePage,
+  PageContainer,
   CDSTreeView,
   CDSTreeNode,
   ToastNotificationContainer

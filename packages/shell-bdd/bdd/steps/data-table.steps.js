@@ -23,7 +23,7 @@ Then('User verifies row with has data in [Data-table][{string}]', async function
   await datatable.verifyRowData(dataTable.rows());
 });
 
-Then('User verifies cell[{int}][{int}] has value {string} in [Data-Table][{string}]', async function (rowIndex, columnIndex, cellValue, datatableId) {
+Then('User verifies cell[{int}][{int}] has value {stringJsonPath} in [Data-Table][{string}]', async function (rowIndex, columnIndex, cellValue, datatableId) {
   const datatable = await getPage(this.page).getDataTable(datatableId);
   await datatable.verifyCellData(rowIndex, columnIndex, cellValue);
 });
@@ -125,7 +125,7 @@ Then('User verifies applied filters is [{elementStatus}] in [Data-Table][{string
   await datatable.verifyAppliedFilters(data, elementStatus);
 });
 
-When('User clicks on clear filters in [Data-Table][{string}]', async function(datatableId) {
+When('User clicks on clear filters in [Data-Table][{string}]', async function (datatableId) {
   const datatable = await getPage(this.page).getDataTable(datatableId);
   await datatable.clearAppliedFilters();
-})
+});

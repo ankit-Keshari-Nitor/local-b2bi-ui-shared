@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DataServiceProvider } from '../../core/providers/DataServiceProvider';
 import { useResource } from '../../core/providers/ResourceProvider';
+import { usePage } from '../../core/providers/PageContainerProvider';
 
-const RoutePage = ({ children, dataLoaderConfig, resourceKey, ...props }) => {
+const PageContainer = ({ children, mode, dataLoaderConfig, resourceKey, ...props }) => {
   const { hasAccess } = useResource();
+  const { setPageMode } = usePage();
+
+  useEffect(() => {
+    setPageMode(mode);
+  }, []);
+
   return (
     <>
       {' '}
@@ -18,4 +25,4 @@ const RoutePage = ({ children, dataLoaderConfig, resourceKey, ...props }) => {
   );
 };
 
-export { RoutePage };
+export { PageContainer };

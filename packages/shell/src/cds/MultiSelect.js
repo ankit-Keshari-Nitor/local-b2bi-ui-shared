@@ -1,11 +1,11 @@
 import React from 'react';
-import { FilterableMultiSelect as CDSFilterableMultiSelect } from '@carbon/react';
+import { MultiSelect as CDSMultiSelect, FilterableMultiSelect as CDSFilterableMultiSelect } from '@carbon/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { processRules } from './FormUtils';
+import { processRules, getFieldAttributes } from './FormUtils';
 
-const MultiSelect = ({ name, rules, disabled, items, itemToString, getValue, ...props }) => {
+const MultiSelect = ({ name, rules, disabled, items, itemToString, variant = 'filterable', getValue, labelText, placeholder, infoText, readOnly, ...props }) => {
   const { t } = useTranslation();
   const processedRules = processRules(rules, t);
   const { control } = useFormContext();
@@ -38,21 +38,43 @@ const MultiSelect = ({ name, rules, disabled, items, itemToString, getValue, ...
             })
           );
           itemToString = itemToString ? itemToString : (item) => (item ? item.displayValue : '');
+
           return (
-            <CDSFilterableMultiSelect
-              id={id}
-              name={name}
-              onChange={onChangeTemp}
-              onBlur={onBlur}
-              disabled={disabled}
-              ref={ref}
-              initialSelectedItems={selectedItems}
-              items={items}
-              itemToString={itemToString}
-              invalid={invalid}
-              invalidText={error?.message}
-              {...props}
-            />
+            <>
+              {variant === 'filterable' ? (
+                <CDSFilterableMultiSelect
+                  id={id}
+                  name={name}
+                  onChange={onChangeTemp}
+                  onBlur={onBlur}
+                  disabled={disabled}
+                  ref={ref}
+                  initialSelectedItems={selectedItems}
+                  items={items}
+                  itemToString={itemToString}
+                  invalid={invalid}
+                  invalidText={error?.message}
+                  {...getFieldAttributes({fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+                  {...props}
+                />
+              ) : (
+                <CDSMultiSelect
+                  id={id}
+                  name={name}
+                  onChange={onChangeTemp}
+                  onBlur={onBlur}
+                  disabled={disabled}
+                  ref={ref}
+                  items={items}
+                  itemToString={itemToString}
+                  invalid={invalid}
+                  invalidText={error?.message}
+                  selectedItems={selectedItems}
+                  {...getFieldAttributes({fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+                  {...props}
+                />
+              )}
+            </>
           );
         }}
       ></Controller>

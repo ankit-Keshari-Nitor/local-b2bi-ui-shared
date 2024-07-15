@@ -75,8 +75,8 @@ const ShellLogin = (props) => {
   useEffect(() => {
     if (auth.isAuthenticated) {
       setLoginError(null);
-
-      navigate(from, { replace: true });
+      const defaultRoute = window.sessionStorage.getItem('defaultRoute');
+      navigate(defaultRoute, { replace: true });
     } else {
       setLoginError(auth.loginUserError);
     }
@@ -119,9 +119,7 @@ const ShellLogin = (props) => {
                 labelText={t('shell:login.userId')}
                 placeholder=""
                 {...register('userId', {
-                  required: t('shell:form.validations.required', { fieldName: t('shell:login.userId') }),
-                  minLength: { value: 3, message: t('shell:form.validations.minLength', { fieldName: t('shell:login.userId'), count: 3 }) },
-                  maxLength: { value: 50, message: t('shell:form.validations.maxLength', { fieldName: t('shell:login.userId'), count: 50 }) }
+                  required: t('shell:form.validations.required', { fieldName: t('shell:login.userId') })
                 })}
               />
               {isEnabled('LOGIN.FORGOT_ID') && (
@@ -188,9 +186,7 @@ const ShellLogin = (props) => {
                 hidePasswordLabel={t('shell:login.togglePasswordOn')}
                 showPasswordLabel={t('shell:login.togglePasswordOff')}
                 {...register('password', {
-                  required: t('shell:form.validations.required', { fieldName: t('shell:login.password') }),
-                  minLength: { value: 8, message: t('shell:form.validations.minLength', { fieldName: t('shell:login.password'), count: 8 }) },
-                  maxLength: { value: 15, message: t('shell:form.validations.maxLength', { fieldName: t('shell:login.password'), count: 15 }) }
+                  required: t('shell:form.validations.required', { fieldName: t('shell:login.password') })
                 })}
               />
               {isEnabled('LOGIN.FORGOT_PASSWORD') && (

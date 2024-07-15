@@ -5,30 +5,31 @@
 @use '@carbon/type';
 
 .sfg--selected-values {
+  display: flex;
+  flex-direction: column;
+
+  .sfg--selected-values-header {
     display: flex;
-    flex-direction: column;
-    
-    .sfg--selected-values-header {
-      display: flex;
-      justify-content: space-between;
-    }
-  
-    .sfg--selected-values-pill-container {
-      display: flex;
-      flex-wrap: wrap;
-      padding-left: $spacing-05;
-      padding-right: $spacing-05;
-      overflow: auto;
-    }
-  
-    .sfg--selected-values-label-pill {
-      margin: 0 $spacing-03 $spacing-03 $spacing-03;
-    }
-  
-    .sfg--selected-values-label,.sfg--selected-values-clearall {
-      padding: 16px;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 18px;
-    }
+    justify-content: space-between;
   }
+
+  .sfg--selected-values-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: $spacing-05;
+    padding-right: $spacing-05;
+    overflow: auto;
+  }
+
+  .sfg--selected-values-label-pill {
+    margin: 0 $spacing-03 $spacing-03 $spacing-03;
+  }
+
+  .sfg--selected-values-label,
+  .sfg--selected-values-clearall {
+    padding: 16px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+  }
+}

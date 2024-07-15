@@ -12,7 +12,8 @@
   .sfg--grid--form {
     padding: 0px !important;
     margin: 0px !important;
-    .cds--form-item {
+    .cds--form-item:not(.cds--checkbox-wrapper, .cds--toggle-wrapper),
+    .cds--list-box__wrapper {
       margin-top: $spacing-03;
       margin-bottom: $spacing-03;
       min-height: 5.5rem;
@@ -25,17 +26,31 @@
         }
       }
     }
+    .cds--form-item.cds--toggle-wrapper {
+      margin-top: $spacing-03;
+      margin-bottom: $spacing-03;
+
+      .cds--tooltip {
+        .cds--btn {
+          padding: 0px 0px 0px 8px;
+          min-block-size: 16px !important;
+          border: 0px;
+        }
+      }
+    }
+  }
+  .cds--btn--tertiary.cds--btn--row {
+    margin-top: 2rem;
   }
 }
 
 .cds--form.sfg--form-readonly {
-    .sfg--grid--form {
-        .cds--form-item {            
-            min-height: 3.5rem;
-        }
+  .sfg--grid--form {
+    .cds--form-item {
+      min-height: 3.5rem;
     }
+  }
 }
-
 
 .sfg--grid-container {
   padding: $spacing-05;
@@ -54,54 +69,6 @@
   background: var(--cds-layer);
   margin: 1rem;
   margin-bottom: 2rem;
-}
-
-.tile-group {
-  .tile-group-item {
-    display: inline-block;
-    width: 33%;
-    padding: 1rem;
-
-    .cds--tile {
-      min-height: 15rem;
-      display: flex;
-      flex-direction: column;
-
-      .sfg--tile-header {
-        position: relative;
-        .cds--data-table-header__title {
-          line-height: 40px;
-        }
-        .cds--overflow-menu__wrapper {
-          position: absolute;
-          top: 0px;
-          right: 0px;
-        }
-      }
-      .tile-count {
-        flex-grow: 1;
-        font-size: 64px;
-        line-height: 70px;
-        color: $link-primary;
-        display: flex;
-        align-items: flex-end;
-
-        .cds--link {
-          font-size: 64px;
-          line-height: 70px;
-          color: $link-primary;
-          cursor: pointer;
-        }
-      }
-
-      .tile-actions {
-        display: flex;
-        justify-content: flex-end;
-        padding-top: 0.5rem;
-        border-top: 2px solid $border-subtle-01;
-      }
-    }
-  }
 }
 
 .p-0 {
@@ -131,6 +98,20 @@
     // width: 100%;
   }
 }
+
+.cds--modal-md {
+  .cds--modal-container {
+    height: 80%;
+    // width: 100%;
+  }
+}
+
+.cds--modal-sm {
+  .cds--modal-container {
+    height: 60%;
+    // width: 100%;
+  }
+}
 /********************Modal Page Start**************************************/
 
 /********************* Page ************************************************/
@@ -148,6 +129,13 @@
     .cds--data-table-header {
       padding-top: 0px;
     }
+  }
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .sfg--page-body {
+    flex-grow: 1;
   }
 }
 
@@ -172,3 +160,37 @@
 }
 
 /********************* Page ************************************************/
+
+.sfg--section-title {
+  font-weight: var(--cds-heading-03-font-weight, 600);
+  font-size: var(--cds-heading-03-font-size, 0.9rem);
+  margin: 0.5rem 0 1rem 0;
+}
+.sfg--form-fields-as-data-label {
+  .cds--text-input {
+    padding: 0px;
+    border: none;
+    background-color: var(--cds-field);
+    color: $text-primary;
+  }
+}
+
+.sfg--subsection {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;
+
+  .sfg--subsection-header {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 28px;
+    color: $text-primary;
+  }
+
+  .sfg--subsection-description {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: $text-secondary;
+  }
+}

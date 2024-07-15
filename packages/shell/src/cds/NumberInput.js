@@ -3,9 +3,9 @@ import { NumberInput as CDSNumberInput } from '@carbon/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { processRules } from './FormUtils';
+import { processRules, getFieldAttributes } from './FormUtils';
 
-const NumberInput = ({ name, rules, disabled, ...props }) => {
+const NumberInput = ({ name, rules, disabled, labelText, placeholder, infoText, readOnly, ...props }) => {
   const { t } = useTranslation();
   const processedRules = processRules(rules, t);
   const { control } = useFormContext();
@@ -40,6 +40,7 @@ const NumberInput = ({ name, rules, disabled, ...props }) => {
               value={value}
               invalid={invalid}
               invalidText={error?.message}
+              {...getFieldAttributes({ fieldType: 'NumberInput', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
               {...props}
             />
           );
@@ -51,10 +52,8 @@ const NumberInput = ({ name, rules, disabled, ...props }) => {
 
 export default NumberInput;
 
-
 NumberInput.propTypes = {
   name: PropTypes.string,
   rules: PropTypes.object,
   disabled: PropTypes.bool
 };
-

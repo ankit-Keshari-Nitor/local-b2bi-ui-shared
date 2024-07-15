@@ -30,7 +30,7 @@ const SFGSelectedValues = ({ id, name, label, type = 'filter', values, onRemove,
             return (
               <Tag
                 key={value.id}
-                type={type === 'filter' ? 'blue' : 'grey'}
+                type={type === 'filter' ? 'blue' : 'cool-gray'}
                 className="sfg--selected-values-pill"
                 filter={type === 'filter' ? true : false}
                 title="Remove"

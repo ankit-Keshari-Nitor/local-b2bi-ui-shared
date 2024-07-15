@@ -1,4 +1,5 @@
 import { defineParameterType } from '@cucumber/cucumber';
+import { JSONPath } from 'jsonpath-plus';
 
 const customParameterTypes = {};
 
@@ -43,23 +44,8 @@ const registerTypesWithObject = (types) => {
   );
 };
 
-const userTypes = {
-  SYSTEM_ADMIN: {
-    userId: 'admin',
-    password: 'password'
-  },
-  COMPANY_ADMIN: {
-    userId: 'admin',
-    password: 'password'
-  },
-  BUSINESSUNIT_ADMIN: {
-    userId: 'admin',
-    password: 'password'
-  }
-};
-
 registerTypesWithArray({
-  elementStatus: 'enabled|disabled|visible|hidden'.split('|'),
+  elementStatus: 'enabled|disabled|visible|hidden|readOnly'.split('|'),
   notificationType: 'success|information|warning|error'.split('|')
 });
 
@@ -143,12 +129,54 @@ registerTypesWithObject({
       field: 'fieldset.cds--checkbox-group .cds--form-item',
       message: ''
     },
+    Toggle: {
+      label: 'label .cds--toggle__label-text',
+      control: 'button[role="switch"]',
+      field: '.cds--form-item.cds--toggle-wrapper',
+      message: ''
+    },
     Combobox: {
       label: 'label.cds--label',
       control: 'input[type="text"][role="combobox"].cds--text-input',
       field: '.cds--list-box__wrapper',
       message: '',
       option: '.cds--list-box__menu .cds--list-box__menu-item'
+    },
+    MultiSelect: {
+      label: 'label.cds--label',
+      control: 'input[role="combobox"].cds--text-input',
+      field: '.cds--multi-select__wrapper',
+      message: '',
+      option: '.cds--list-box__menu .cds--list-box__menu-item'
+    },
+    FileInput: {
+      label: 'label.cds--label',
+      control: 'input[type="file"].cds--file-input',
+      field: '.cds--form-item',
+      fileName: '.cds--file__selected-file .cds--file-filename',
+      message: 'div[id="<fieldId>-error-msg"]'
+    },
+    TextArea: {
+      label: 'label.cds--label',
+      control: 'textarea',
+      field: '.cds--form-item',
+      message: 'div[id="<fieldId>-error-msg"]'
+    },
+  }
+});
+
+customDefineParameterType({
+  name: 'stringJsonPath',
+  regexp: /"([^"\\]*(\\.[^"\\]*)*)"|'([^'\\]*(\\.[^'\\]*)*)'/,
+  transformer: function (value) {
+    if (value.indexOf('$') === 0) {
+      const jsonPathValue = JSONPath({ path: value, json: this.excelData, wrap: false });
+      return jsonPathValue;
+    } else if (value.indexOf('#') === 0) {
+      const jsonPathValue = JSONPath({ path: value.replace('#', '$'), json: this.po, wrap: false });
+      return jsonPathValue;
+    } else {
+      return value;
     }
   }
 });

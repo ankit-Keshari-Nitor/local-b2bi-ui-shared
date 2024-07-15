@@ -12,8 +12,6 @@ const Breadcrumb = (props) => {
   const routes = useRouter();
   const navigate = useNavigate();
   const breadcrumbs = useBreadcrumbs(routes);
-  const matches = useMatches();
-  console.log(matches);
   return (
     <>
       <CarbonBreadcrum noTrailingSlash data-testid="breadcrumb">
@@ -35,6 +33,7 @@ const Breadcrumb = (props) => {
                 if (index >= 2 && index < items.length - 2) {
                   return (
                     <OverflowMenuItem
+                      key={match.pathname}
                       itemText={t(breadcrumb.props.children)}
                       onClick={() => {
                         navigate(match.pathname);

@@ -8,6 +8,7 @@ const ConfigurationProvider = (props) => {
   const [locale, setLocale] = useState(props.locale);
   const [sideNav, setSideNav] = useState(props.sideNavConfig || []);
   const [headerMenuList, setHeaderMenuList] = useState(props.headerMenuList || []);
+  const [switcherItemList, setSwitcherItemList] = useState(props.switcherItemList || []);
 
   //i18n.changeLanguage(locale);
   const value = {
@@ -20,7 +21,9 @@ const ConfigurationProvider = (props) => {
     sideNav,
     setSideNav,
     headerMenuList,
-    setHeaderMenuList
+    setHeaderMenuList,
+    switcherItemList,
+    setSwitcherItemList
   };
   return <ConfigurationContext.Provider value={value}>{props.children}</ConfigurationContext.Provider>;
 };

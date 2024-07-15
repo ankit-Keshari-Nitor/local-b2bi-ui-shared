@@ -1,5 +1,5 @@
 import React from 'react';
-import { RoutePage } from '../components';
+import { PageContainer } from '../components';
 
 const FeatureTest = {
   FeatureTestPage: React.lazy(() => import('./FeatureTest')),
@@ -15,9 +15,9 @@ const routes = [
         path: '/feature',
         breadcrumb: 'shell:test.feature',
         element: (
-          <RoutePage>
+          <PageContainer  mode="ROUTE_PAGE">
             <FeatureTest.FeatureTestPage></FeatureTest.FeatureTestPage>
-          </RoutePage>
+          </PageContainer>
         )
       }
     ]
@@ -30,9 +30,9 @@ const routes = [
         path: '/form',
         breadcrumb: 'shell:test.form',
         element: (
-          <RoutePage>
+          <PageContainer  mode="ROUTE_PAGE">
             <FeatureTest.FormTestPage></FeatureTest.FormTestPage>
-          </RoutePage>
+          </PageContainer>
         )
       }
     ]
