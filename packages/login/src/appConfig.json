@@ -1,0 +1,7 @@
+{
+    "loginSubmitUrl" : "/login",
+    "backgroundStyle": {
+        "backgroundImage": "url('assets/login.png')", 
+        "backgroundSize": "cover"
+    }
+}

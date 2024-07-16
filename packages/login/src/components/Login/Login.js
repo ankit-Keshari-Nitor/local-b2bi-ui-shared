@@ -1,50 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Theme, Header, HeaderName, Form, TextInput, Button, Checkbox } from '@carbon/react';
-import { Information, ArrowRight, CostTotal } from '@carbon/icons-react';
+import { Information, ArrowRight } from '@carbon/icons-react';
+import { useTranslation } from 'react-i18next';
+import appConfigData from '../../appConfig.json';
 import './Login.scss';
 
 const Login = (props) => {
-
-  const [formValues, setFormValues] = useState({userId: '', password: ''});
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  console.log(appConfigData)
+  const { t } = useTranslation();
 
   const [state, setState] = useState({
     page: 'userid'
   });
+  const [loginError, setLoginError] = useState(null);
 
-  const handleChange = (e) => {
-    const { name, value, userId } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-    setFormErrors(validate({...formValues, [name]: value }));
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (Object.keys(formErrors).length === 0 && isSubmitting) {
-      console.log("val>>>>",formValues);
-    }
-  }, [formErrors, formValues, isSubmitting]);
-
- const validate = (values) => {
-    const errors = {};
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-   
-    if (!values.userId) {
-      errors.userId = 'User Id is required!';
-    } else if (!regex.test(values.userId)) {
-      errors.userId = 'This is not a valid email format!';
-    }
-    if (!values.password) {
-      errors.password = 'Password is required';
-    } else if (values.password.length < 4) {
-      errors.password = 'Password must be more than 4 characters';
-    } else if (values.password.length > 10) {
-      errors.password = 'Password cannot exceed more than 10 characters';
-    }
-    return errors;
-  };
-  
   const forgotId = () => {
     setState({ ...state, page: 'forgotid' });
   };
@@ -54,16 +26,16 @@ const Login = (props) => {
     setIsSubmitting(false);
   };
 
-  const submitLogin = (e) => {
-    e.preventDefault();
-    // setFormErrors(validate(formValues.password));
+  const submitLogin = (data) => {
     setIsSubmitting(true);
+    // event.preventDefault();
 
     let formData = getValues();
+    let userId = formData.userId;
 
     if (formData.rememberId) {
       if (localStorage) {
-        localStorage.userId = formValues.userId;
+        localStorage.userId = formData.userId;
       }
     } else {
       localStorage.removeItem('userId');
@@ -74,7 +46,8 @@ const Login = (props) => {
     register,
     formState: { errors },
     handleSubmit,
-    getValues
+    getValues,
+    watch
   } = useForm({
     mode: 'onChange',
     defaultValues: {
@@ -82,51 +55,55 @@ const Login = (props) => {
       rememberPassword: false
     }
   });
-  
+
   let loginstate_page;
   if (state.page === 'userid') {
     loginstate_page = (
       <>
         <div className="login-content-holder">
           <div className="title" id="login_title">
-           Log in
+            {t('login:login.logIn')}
           </div>
           <div className="sub-title" id="login_subtitle">
-           Don't have an account? <a href="#">Create</a>
+            {t('login:login.loginCreateMessage')}
+            {' '}
+            <a id="create">{t('login:login.CreateId')}</a>
           </div>
           <Form data-testid="loginForm" name="login">
             <div className="userId-container">
               <TextInput
-                id="userId"
-                labelText="User Id"
-                placeholder="Enter User Id"
-                name="userId"
-                value={formValues.userId}
-                onChange={handleChange}
+                id="login.userId"
+                data-testid="userId"
+                invalidText={errors.userId?.message}
+                invalid={errors.userId ? true : false}
+                labelText={t('login:login.userId')}
+                placeholder=""
+                {...register('userId', {
+                  required: t('login:form.validations.required', { fieldName: t('login:login.userId') })
+                })}
               />
-              {formErrors.userId && <div className="notification-container">{formErrors.userId}</div>}
-                <div className="forgot-link">
-                  <a id="forget_id_title" onClick={forgotId}>
-                    Forgot ID?
-                  </a>
-                </div>
-            
+              <div className="forgot-link">
+                <a id="forget_id_title" onClick={forgotId}>
+                  {t('login:login.forgot_id_link')}
+                </a>
+              </div>
             </div>
             <div className="form-btn-container">
               <Button
+                data-testid="continue"
                 name="continue"
                 kind="primary"
                 renderIcon={ArrowRight}
-                iconDescription="continue"
-                disabled={!formValues.userId || formErrors.userId ? true : false}
+                iconDescription={t('login:login.continue')}
+                disabled={!watch('userId') || errors.userId ? true : false}
                 tabIndex={0}
                 onClick={handleSubmit(capturePassword)}
               >
-                Continue
+                {t('login:login.continue')}
               </Button>
             </div>
             <div className="form-remember-container">
-              <Checkbox labelText="Remember ID" id="rememberId" {...register('rememberId')} />
+              <Checkbox labelText={t('login:login.remember_id')} id="rememberId" {...register('rememberId')} />
               <span className="information-holder">
                 <Information size="16" />
               </span>
@@ -140,55 +117,63 @@ const Login = (props) => {
       <>
         <div className="login-content-holder">
           <div className="title" id="login_title">
-            Log in
+            {t('login:login.logIn')}
           </div>
           <div className="sub-title" id="login_subtitle">
-          Logging in as {formValues.userId}.
+            {t('login:login.passwordHelpMessage', { userId: getValues('userId') })}
             <a
               onClick={() => {
                 setState({ ...state, page: 'userid' });
               }}
             >
               {' '}
-              <a href="#">Not you?</a>
+              {t('login:login.notYou')}
             </a>
           </div>
+          {loginError && <div className="notification-container">{loginError}</div>}
           <Form data-testid="loginForm" name="login">
             <div className="password-container">
               <TextInput.PasswordInput
-                id="password"
-                labelText="Password"
-                hidePasswordLabel=""
-                showPasswordLabel=""
-                name="password"
-                value={formValues.password}
-                onChange={handleChange}
+                id="login.password"
+                data-testid="password"
+                minLength="8"
+                invalidText={errors.password?.message}
+                invalid={errors.password ? true : false}
+                labelText={t('login:login.password')}
+                placeholder=""
+                hidePasswordLabel={t('login:login.togglePasswordOn')}
+                showPasswordLabel={t('login:login.togglePasswordOff')}
+                {...register('password', {
+                  required: t('login:form.validations.required', { fieldName: t('login:login.password') })
+                })}
               />
-              {formErrors.password && <div className="notification-container">{formErrors.password}</div>}
-                <div className="forgot-link">
-                  <a
-                    id="forget_password_title"
-                    onClick={() => {
-                      setState({ ...state, page: 'forgotpassword' });
-                    }}
-                  >
-                    Forgot password ?
-                  </a>
-                </div>
+
+              <div className="forgot-link">
+                <a
+                  id="forget_password_title"
+                  onClick={() => {
+                    setState({ ...state, page: 'forgotpassword' });
+                  }}
+                >
+                  {t('login:login.forgot_password_link')}
+                </a>
+              </div>
             </div>
             <div className="form-btn-container">
               <Button
+                data-testid="login"
                 name="login"
                 kind="primary"
+                disabled={!watch('password') || isSubmitting || errors.password ? true : false}
+                tabIndex={0}
                 type="button"
                 onClick={submitLogin}
-                disabled={!formValues.password || formErrors.password ? true : false}
               >
-              Log in
+                {t('login:login.login_btn')}
               </Button>
             </div>
             <div className="form-remember-container">
-              <Checkbox labelText="Remember Password" id="rememberPassword" {...register('rememberPassword')} />
+              <Checkbox labelText={t('login:login.remember_password')} id="rememberPassword" {...register('rememberPassword')} />
               <span className="information-holder">
                 <Information size="16" />
               </span>
@@ -203,17 +188,17 @@ const Login = (props) => {
     <>
       <div className="container">
         <Theme theme="g100">
-          <Header aria-label="IBM Product">
-            <HeaderName>
-                Login Application
+          <Header aria-label={t('productName')}>
+            <HeaderName href="#" prefix={t('appPrefix')}>
+              {t('appName')}
             </HeaderName>
           </Header>
         </Theme>
         <div className="login-page-content">
-          <div className="branding-content-container">
+          <div className="branding-content-container" style={appConfigData.backgroundStyle}>
             <div className="branding-name">
-              <div className="greeting">Welcome to</div>
-              <div className="product-title">Login Application</div>
+              <div className="greeting">{t('login:login.welcome_message')}</div>
+              <div className="product-title">{t('appTitle')}</div>
             </div>
           </div>
           <Theme className="login-container" theme="g10">
