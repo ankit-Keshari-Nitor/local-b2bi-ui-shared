@@ -6,10 +6,33 @@ const generatePathWithConditionalTrailingSlash = (pathTemplate, params) => {
   return pathTemplate.endsWith('/') ? `${generatedPath}/` : generatedPath;
 };
 
+function customParamsSerializer(params) {
+  const parts = [];
+
+  for (const key in params) {
+    if (params.hasOwnProperty(key)) {
+      const value = params[key];
+      if (Array.isArray(value)) {
+        value.forEach((val) => {
+          if (val !== undefined && val !== null) {
+            parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(val)}`);
+          }
+        });
+      } else if (value !== undefined && value !== null) {
+        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+      }
+    }
+  }
+
+  return parts.join('&');
+}
+
 class DataService {
   getDataLoaderConfig;
-  constructor(getDataLoaderConfig) {
+  axios;
+  constructor(getDataLoaderConfig, axios) {
     this.getDataLoaderConfig = getDataLoaderConfig;
+    this.axios = axios;
   }
 
   call(dataLoaderId, input, options) {
@@ -34,7 +57,16 @@ class DataService {
         });
       } else {
         if (dataLoaderConfig.type === 'RESTAPI') {
-          return new RestApiService().call(dataLoaderConfig, cloneInput, options);
+          // return new RestApiService().call(dataLoaderConfig, cloneInput, options);
+          const restReq = {
+            url: dataLoaderConfig.url,
+            method: dataLoaderConfig.method,
+            data: input,
+            params: options?.params,
+            headers: options?.headers,
+            paramsSerializer: customParamsSerializer
+          };
+          return this.axios(restReq);
         }
       }
     } catch (err) {
