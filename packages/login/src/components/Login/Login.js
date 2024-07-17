@@ -4,6 +4,7 @@ import { Theme, Header, HeaderName, Form, TextInput, Button, Checkbox } from '@c
 import { Information, ArrowRight } from '@carbon/icons-react';
 import { useTranslation } from 'react-i18next';
 import appConfigData from '../../appConfig.json';
+import * as AuthService from "../service/authService";
 import './Login.scss';
 
 const Login = (props) => {
@@ -41,9 +42,12 @@ const Login = (props) => {
     }
   });
 
-  const onSubmitLoginForm = (data) => {
+  const onSubmitLoginForm = async (data) => {
     setIsSubmitting(true);
     // event.preventDefault();
+    
+    const response = await AuthService.authenticateUser(data);
+    console.log("response",response);
 
     let formData = getValues();
     let userId = formData.userId;
@@ -55,21 +59,7 @@ const Login = (props) => {
     } else {
       localStorage.removeItem('userId');
     }
-    authenticateUser({ userId: data.userId, password: data.password });
-    
   };
-
-  const authenticateUser = async(data) =>{
-    console.log(data,"data")
-    // return fetch(appConfigData.loginSubmitUrl, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(data)
-    // })
-    //   .then(data => data.json())
-   }
 
   let loginstate_page;
   if (state.page === 'userid') {
