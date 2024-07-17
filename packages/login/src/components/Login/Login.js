@@ -7,7 +7,7 @@ import appConfigData from '../../appConfig.json';
 import './Login.scss';
 
 const Login = (props) => {
-  console.log(appConfigData)
+
   const { t } = useTranslation();
 
   const [state, setState] = useState({
@@ -26,7 +26,22 @@ const Login = (props) => {
     setIsSubmitting(false);
   };
 
-  const submitLogin = (data) => {
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    handleSubmit : handleSubmitLoginForm,
+    getValues,
+    watch
+  } = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      rememberId: true,
+      rememberPassword: false
+    }
+  });
+
+  const onSubmitLoginForm = (data) => {
     setIsSubmitting(true);
     // event.preventDefault();
 
@@ -40,21 +55,21 @@ const Login = (props) => {
     } else {
       localStorage.removeItem('userId');
     }
+    authenticateUser({ userId: data.userId, password: data.password });
+    
   };
 
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-    getValues,
-    watch
-  } = useForm({
-    mode: 'onChange',
-    defaultValues: {
-      rememberId: true,
-      rememberPassword: false
-    }
-  });
+  const authenticateUser = async(data) =>{
+    console.log(data,"data")
+    // return fetch(appConfigData.loginSubmitUrl, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify(data)
+    // })
+    //   .then(data => data.json())
+   }
 
   let loginstate_page;
   if (state.page === 'userid') {
@@ -131,12 +146,11 @@ const Login = (props) => {
             </a>
           </div>
           {loginError && <div className="notification-container">{loginError}</div>}
-          <Form data-testid="loginForm" name="login">
+          <Form data-testid="loginForm" name="login" onSubmit={handleSubmitLoginForm(onSubmitLoginForm)} >
             <div className="password-container">
               <TextInput.PasswordInput
                 id="login.password"
                 data-testid="password"
-                minLength="8"
                 invalidText={errors.password?.message}
                 invalid={errors.password ? true : false}
                 labelText={t('login:login.password')}
@@ -166,8 +180,7 @@ const Login = (props) => {
                 kind="primary"
                 disabled={!watch('password') || isSubmitting || errors.password ? true : false}
                 tabIndex={0}
-                type="button"
-                onClick={submitLogin}
+                type="submit"
               >
                 {t('login:login.login_btn')}
               </Button>
