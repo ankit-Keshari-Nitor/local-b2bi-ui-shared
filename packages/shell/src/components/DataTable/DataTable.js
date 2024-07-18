@@ -23,7 +23,7 @@ import {
   TableSelectAll,
   TableSelectRow
 } from '@carbon/react';
-import { Filter } from '@carbon/icons-react';
+import { Filter, Renew } from '@carbon/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useResource } from '../../core/providers/ResourceProvider';
 import DataTableFilter from './DataTableFilter';
@@ -31,46 +31,30 @@ import TransformTableData from './transform-table-data';
 import { Grid, Column, Tag, Link } from '@carbon/react';
 import { SFGEmptyState } from '../EmptyState/EmptyState';
 import AppliedFilter from './AppliedFilter';
+import DataTableUtil from './DataTableUtil';
 import './DataTable.scss';
 
 // const rowSelect = ['none', 'single', 'multiple', 'all'];
 
-const arrayToObject = (array, objectKey) => {
-  return Object.fromEntries(array.map((obj) => [obj[objectKey], obj]));
+const columnClasses = {
+  label: 'sfg--data-table--column-label',
+  tooltip: 'sfg--data-table--column-tooltip',
+  'label-icon': 'sfg--data-table--column-label-icon',
+  'icon-label': 'sfg--data-table--column-icon-label',
+  button: 'sfg--data-table--column-button',
+  link: 'sfg--data-table--column-link',
+  'array-label': 'sfg--data-table--column-array-label',
+  'tag-label': 'sfg--data-table--column-tag-label'
 };
 
-const getSelectedRowData = (selectedRows, rowObj) => {
-  const selectedRowData = [];
-  selectedRows.forEach((selectedRow) => {
-    selectedRowData.push(rowObj[selectedRow.id]);
-  });
-  return selectedRowData;
-};
-
-const filterActions = (selectedRows, actions, filterFn) => {
-  actions.forEach((action) => {
-    action.shouldShow = true;
-  });
-  const actionsObj = Object.fromEntries(actions.map((obj) => [obj.id, obj]));
-  selectedRows.forEach((selectedRow) => {
-    if (filterFn !== undefined) {
-      filterFn(selectedRow, actionsObj);
-    }
-  });
-  actions.forEach((action) => {
-    if (action.selection === 'single' && selectedRows.length > 1) {
-      action.shouldShow = false;
-    }
-  });
-  return actions;
-};
-
-const SFGDataTable = ({ data, totalItems, controller, config, className, emptyState, loadingState, ...props }) => {
+const SFGDataTable = React.memo(({ data, totalItems, controller, config, className, emptyState, loadingState, ...props }) => {
   const [showFilter, setShowFilter] = useState(false);
+  const [isFilterEnabled, setIsFilterEnabled] = useState(false);
   const { t } = useTranslation();
   const { hasAccess } = useResource();
   const [rows, setRows] = useState([]);
   const [rowObj, setRowObj] = useState({});
+  const [colObj, setColObj] = useState({});
   const [headerData, setHeaderData] = useState([]);
 
   const [searchText, setSearchText] = useState('');
@@ -80,24 +64,18 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
     pageSize: config.paginationConfig.pageSize || 20
   });
 
-  const paginate = (data, { page, pageSize }) => {
-    const start = (page - 1) * pageSize;
-    const end = page * pageSize;
-    return data.slice(start, end);
-  };
-
   useEffect(() => {
-    setRowObj(arrayToObject(data, 'id'));
+    setRowObj(DataTableUtil.arrayToObject(data, 'id'));
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
-      setRows(paginate(TransformTableData(data, config.columnConfig, t), pagination));
+      setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server' || config.paginationConfig.mode === 'mixed') {
       setRows(TransformTableData(data, config.columnConfig, t));
     }
-  }, [data]);
+  }, [data, loadingState]);
 
   useEffect(() => {
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
-      setRows(paginate(TransformTableData(data, config.columnConfig, t), pagination));
+      setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server') {
       config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     } else if (config.paginationConfig.mode === 'mixed') {
@@ -111,12 +89,18 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
         .filter((column) => column.isVisible || column.isVisible === undefined)
         .map((column) => {
           return {
-            header: t(column.label),
+            header: column.label ? t(column.label) : '',
             key: column.value,
             isSortable: column.isSortable
           };
         })
     );
+    setColObj(DataTableUtil.arrayToObject(config.columnConfig, 'value'));
+
+    if (config?.filterConfig?.fields) {
+      const visilbleFields = config.filterConfig.fields.filter((field) => field.isVisible || field.isVisible === undefined);
+      setIsFilterEnabled(visilbleFields.length > 0);
+    }
   }, [config]);
 
   useEffect(() => {
@@ -125,12 +109,14 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
   }, [controller?.filterState]);
 
   const onRemoveAppliedFilter = (key) => {
-    //delete appliedFilter[key];
-    const { [key]: removedData, ...filterData } = appliedFilter;
-    filterData[key] = '';
-    //setAppliedFilter(filterData);
-    config?.filterConfig?.onApply?.(filterData);
-    //config?.filterConfig?.onRemove(key);
+    // //delete appliedFilter[key];
+    // const { [key]: removedData, ...filterData } = appliedFilter;
+    // filterData[key] = '';
+    // //setAppliedFilter(filterData);
+    // config?.filterConfig?.onApply?.(filterData);
+    // //config?.filterConfig?.onRemove(key);
+    const filters = { ...controller?.filterState, [key]: '' };
+    config?.filterConfig?.onApply?.(filters);
   };
 
   const onClearApplierFilter = () => {
@@ -152,7 +138,7 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
   return (
     <>
       {loadingState ? (
-        <DataTableSkeleton headers={headerData} columnCount={headerData.length} showHeader={config.title ? true : false} rowCount={20}></DataTableSkeleton>
+        <DataTableSkeleton columnCount={headerData.length} showHeader={config.title ? true : false} rowCount={20}></DataTableSkeleton>
       ) : (
         <>
           <DataTable
@@ -169,107 +155,124 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
           >
             {({ rows, headers, getHeaderProps, getRowProps, getSelectionProps, getBatchActionProps, onInputChange, selectedRows }) => (
               <TableContainer title={config.title ? config.title : ''} description={config.description ? config.description : ''} className={'sfg--table-container ' + className}>
-                <TableToolbar>
-                  <TableBatchActions {...getBatchActionProps()} data-testid="batchAction">
-                    {config.actionsConfig.batchActions &&
-                      selectedRows.length > 0 &&
-                      filterActions(getSelectedRowData(selectedRows, rowObj), config.actionsConfig.batchActions, config.actionsConfig.filterBatchActions)
-                        .filter((batchAction) => hasAccess(batchAction.resourceKey))
-                        .filter((batchAction) => batchAction.shouldShow)
-                        .map((batchAction) => (
-                          <TableBatchAction
-                            key={batchAction.label}
-                            data-testid={batchAction.id}
-                            tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
-                            renderIcon={batchAction.icon}
-                            onClick={() => batchAction.onAction(selectedRows)}
-                          >
-                            {t(batchAction.label)}
-                          </TableBatchAction>
-                        ))}
-                  </TableBatchActions>
-                  <TableToolbarContent className="sfg--table-toolbar ">
-                    {config?.filterConfig?.fields && (
-                      <Button kind="ghost" data-testid="filtericon" name="filter" aria-label="filter-btn" onClick={() => (showFilter ? setShowFilter(false) : setShowFilter(true))}>
-                        <Filter></Filter>
-                      </Button>
-                    )}
-                    {config?.actionsConfig?.search && (
-                      <TableToolbarSearch
-                        data-testid="toolbarsreach"
-                        placeholder={t(config.actionsConfig.search.label)}
-                        tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
-                        defaultValue={searchText}
-                        //onChange={(event) => {
-                        //  config.actionsConfig.search.onAction(event) || onInputChange(event);
-                        //}}
+                {(config.showToolbar || config.showToolbar === undefined) && (
+                  <TableToolbar>
+                    <TableBatchActions {...getBatchActionProps()} data-testid="batchAction">
+                      {config.actionsConfig.batchActions &&
+                        selectedRows.length > 0 &&
+                        DataTableUtil.filterActions(
+                          DataTableUtil.getSelectedRowData(selectedRows, rowObj),
+                          config.actionsConfig.batchActions,
+                          config.actionsConfig.filterBatchActions
+                        )
+                          .filter((batchAction) => hasAccess(batchAction.resourceKey))
+                          .filter((batchAction) => batchAction.shouldShow)
+                          .map((batchAction) => (
+                            <TableBatchAction
+                              key={batchAction.label}
+                              data-testid={batchAction.id}
+                              tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
+                              renderIcon={batchAction.icon}
+                              onClick={() => batchAction.onAction(selectedRows)}
+                            >
+                              {t(batchAction.label)}
+                            </TableBatchAction>
+                          ))}
+                    </TableBatchActions>
+                    <TableToolbarContent className="sfg--table-toolbar ">
+                      {isFilterEnabled && (
+                        <Button
+                          kind="ghost"
+                          data-testid="filtericon"
+                          name="filter"
+                          aria-label="filter-btn"
+                          onClick={() => (showFilter ? setShowFilter(false) : setShowFilter(true))}
+                        >
+                          <Filter></Filter>
+                        </Button>
+                      )}                      
+                      {config?.actionsConfig?.search && (
+                        <TableToolbarSearch
+                          data-testid="toolbarsreach"
+                          placeholder={t(config.actionsConfig.search.label)}
+                          tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
+                          defaultValue={searchText}
+                          //onChange={(event) => {
+                          //  config.actionsConfig.search.onAction(event) || onInputChange(event);
+                          //}}
 
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter') {
-                            if (config.actionsConfig.search.onAction !== undefined) {
-                              config.actionsConfig.search.onAction(event.target?.value);
-                            } else {
-                              onInputChange(event);
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              if (config.actionsConfig.search.onAction !== undefined) {
+                                config.actionsConfig.search.onAction(event.target?.value);
+                              } else {
+                                onInputChange(event);
+                              }
+                              pagination.page = 1;
+                              setSearchText(event.target?.value);
                             }
+                          }}
+                          onClear={() => {
                             pagination.page = 1;
-                            setSearchText(event.target?.value);
-                          }
-                        }}
-                        onClear={() => {
-                          pagination.page = 1;
-                          controller.clearSearch();
-                          setSearchText('');
-                        }}
-                        persistent
-                      />
-                    )}
-                    {config.toolbarMenu ? (
-                      <TableToolbarMenu tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}>
-                        {config.toolbarMenu.map((menuItem, index) => (
-                          <TableToolbarAction key={index} primaryFocus={index === 0} onClick={() => menuItem.onAction(selectedRows)}>
-                            {menuItem.label}
-                          </TableToolbarAction>
-                        ))}
-                      </TableToolbarMenu>
-                    ) : (
-                      <></>
-                    )}
-                    {config.actionsConfig?.toolbarActions &&
-                      config.actionsConfig?.toolbarActions
-                        .filter((toolbarAction) => toolbarAction.isVisible || toolbarAction.isVisible === undefined)
-                        .filter((toolbarAction) => hasAccess(toolbarAction.resourceKey))
-                        .map((toolbarAction, index) => (
-                          <Button
-                            key={toolbarAction.id}
-                            data-testid={toolbarAction.id}
-                            name={toolbarAction.id}
-                            onClick={() => toolbarAction.onAction()}
-                            renderIcon={toolbarAction.icon}
-                            isSelected={toolbarAction.isSelected}
-                            iconDescription={t(toolbarAction.label)}
-                            hasIconOnly={toolbarAction.iconOnly}
-                            // size="sm"
-                            kind={toolbarAction.kind}
-                          >
-                            {!toolbarAction.iconOnly && t(toolbarAction.label)}
-                          </Button>
-                        ))}
-                    {config.actionsConfig.primary && hasAccess(config.actionsConfig.primary.resourceKey) && (
-                      <Button
-                        data-testid={config.actionsConfig.primary.id}
-                        name={config.actionsConfig.primary.id}
-                        tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
-                        onClick={() => config.actionsConfig.primary.onAction()}
-                        renderIcon={config.actionsConfig.primary.icon}
-                        disabled={config?.actionsConfig?.primary?.disabled}
-                        // size="sm"
-                        kind={config.actionsConfig.primary.kind}
-                      >
-                        {t(config.actionsConfig.primary.label)}
-                      </Button>
-                    )}
-                  </TableToolbarContent>
-                </TableToolbar>
+                            controller.clearSearch();
+                            setSearchText('');
+                          }}
+                          persistent
+                        />
+                      )}
+                      {config.showRefresh && (
+                        <Button kind="ghost" name="refresh" aria-label="" onClick={() => controller.refresh()}>
+                          <Renew></Renew>
+                        </Button>
+                      )}
+                      {config.toolbarMenu ? (
+                        <TableToolbarMenu tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}>
+                          {config.toolbarMenu.map((menuItem, index) => (
+                            <TableToolbarAction key={index} primaryFocus={index === 0} onClick={() => menuItem.onAction(selectedRows)}>
+                              {menuItem.label}
+                            </TableToolbarAction>
+                          ))}
+                        </TableToolbarMenu>
+                      ) : (
+                        <></>
+                      )}
+                      {config.actionsConfig?.toolbarActions &&
+                        config.actionsConfig?.toolbarActions
+                          .filter((toolbarAction) => toolbarAction.isVisible || toolbarAction.isVisible === undefined)
+                          .filter((toolbarAction) => hasAccess(toolbarAction.resourceKey))
+                          .map((toolbarAction, index) => (
+                            <Button
+                              key={toolbarAction.id}
+                              data-testid={toolbarAction.id}
+                              name={toolbarAction.id}
+                              onClick={() => toolbarAction.onAction()}
+                              renderIcon={toolbarAction.icon}
+                              isSelected={toolbarAction.isSelected}
+                              iconDescription={t(toolbarAction.label)}
+                              hasIconOnly={toolbarAction.iconOnly}
+                              // size="sm"
+                              kind={toolbarAction.kind}
+                            >
+                              {!toolbarAction.iconOnly && t(toolbarAction.label)}
+                            </Button>
+                          ))}
+                      {config.actionsConfig.primary && hasAccess(config.actionsConfig.primary.resourceKey) && (
+                        <Button
+                          data-testid={config.actionsConfig.primary.id}
+                          name={config.actionsConfig.primary.id}
+                          tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
+                          onClick={() => config.actionsConfig.primary.onAction()}
+                          renderIcon={config.actionsConfig.primary.icon}
+                          disabled={config?.actionsConfig?.primary?.disabled}
+                          // size="sm"
+                          kind={config.actionsConfig.primary.kind}
+                        >
+                          {t(config.actionsConfig.primary.label)}
+                        </Button>
+                      )}
+                    </TableToolbarContent>
+                  </TableToolbar>
+                )}
                 <Grid fullWidth className="sfg--datatable-container-grid">
                   {showFilter && (
                     <Column lg={4} className="sfg--datatable-container-grid-col sfg--filter-section">
@@ -317,11 +320,19 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                                 <th scope="col" data-testid="row-selection"></th>
                               ))}
                             {headers.map((header, index) => (
-                              <TableHeader key={index} data-testid={header.key} {...getHeaderProps({ header, isSortable: header.isSortable })}>
+                              <TableHeader
+                                key={index}
+                                data-testid={header.key}
+                                {...getHeaderProps({ header, isSortable: header.isSortable })}
+                                className={columnClasses[colObj[header.key].displayType] + ' ' + colObj[header.key].className}
+                              >
                                 {header.header}
                               </TableHeader>
                             ))}
-                            {config?.actionsConfig.rowActions && <TableHeader data-testid="row-actions" />}
+                            {config?.actionsConfig?.rowActions?.filter((rowAction) => rowAction.type === 'button')?.length > 0 && (
+                              <TableHeader data-testid="single-row-action-buttons" />
+                            )}
+                            {config?.actionsConfig?.rowActions?.filter((rowAction) => rowAction.type === 'row')?.length > 0 && <TableHeader data-testid="row-actions" />}
                           </TableRow>
                         </TableHead>
                         {!(emptyState !== undefined && config.emptyStateConfig !== undefined) && (
@@ -330,25 +341,63 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                               <TableRow key={i} {...getRowProps({ row })} data-testid={'row-' + i}>
                                 {['multiple', 'all'].includes(config?.rowConfig?.select) && <TableSelectRow data-testid="row-selection" {...getSelectionProps({ row })} />}
                                 {row.cells.map((cell) => (
-                                  <TableCell key={cell.id} data-testid={cell.id}>
+                                  <TableCell
+                                    key={cell.id}
+                                    data-testid={cell.id}
+                                    className={columnClasses[colObj[cell.info.header].displayType] + ' ' + colObj[cell.info.header].className}
+                                  >
                                     {cell.value}
                                   </TableCell>
                                 ))}
-                                {config?.actionsConfig.rowActions && (
-                                  <TableCell data-testid="row-actions">
+                                {config?.actionsConfig?.rowActions?.filter((rowAction) => rowAction.type === 'button')?.length > 0 && (
+                                  <TableCell data-testid="row-actions" className="sfg--datatable--row-actions">
+                                    <div className="sfg-datatable-row-buttonset">
+                                      {config?.actionsConfig?.rowActions
+                                        .filter((rowAction) => rowAction.type === 'button')
+                                        .map((rowAction) => {
+                                          return (
+                                            <Button
+                                              data-testid={rowAction.id}
+                                              key={rowAction.id}
+                                              hasIconOnly
+                                              renderIcon={rowAction?.icon}
+                                              iconDescription={t(rowAction?.label)}
+                                              onClick={() => rowAction?.onAction({ id: row.id }, rowObj[row.id])}
+                                              className="sfg--datatable--single-row-action-button"
+                                              disabled={rowAction?.disabled}
+                                            />
+                                          );
+                                        })}
+                                    </div>
+                                  </TableCell>
+                                )}
+                                {config?.actionsConfig?.rowActions?.filter((rowAction) => rowAction.type === 'row')?.length > 0 && (
+                                  <TableCell data-testid="row-actions" className="sfg--datatable--row-actions">
+                                    {' '}
+                                    {/* className="cds--table-column-menu" */}
                                     {/* // TODO: Should update the below condition check logic */}
                                     {/* {(config?.actionsConfig?.shouldShowRowActions && config?.actionsConfig?.shouldShowRowActions(getSelectedRowData([row], rowObj)[0]) ) && ( */}
                                     <OverflowMenu size="sm" flipped data-testid={'overflow-' + i}>
-                                      {filterActions(getSelectedRowData([row], rowObj), config.actionsConfig.rowActions, config.actionsConfig.filterRowActions)
-                                        .filter((rowAction) => rowAction.shouldShow)
+                                      {DataTableUtil.filterActions(
+                                        DataTableUtil.getSelectedRowData([row], rowObj),
+                                        config.actionsConfig.rowActions,
+                                        config.actionsConfig.filterRowActions
+                                      )
+                                        //.filter((rowAction) => rowAction.shouldShow)
+                                        .filter((rowAction) => rowAction.isVisible || rowAction.isVisible === undefined)
                                         .filter((rowAction) => hasAccess(rowAction.resourceKey))
+                                        .filter((rowAction) => rowAction.type === 'row')
                                         .map((rowAction) => (
                                           <OverflowMenuItem
                                             data-testid={rowAction.id}
                                             key={rowAction.id}
                                             itemText={t(rowAction.label)}
+                                            title={t(rowAction.label)}
+                                            requireTitle={true}
+                                            disabled={rowAction.disabled}
+                                            {...rowAction.attributes}
                                             // disabled={config?.actionsConfig.shouldShowRowAction(getSelectedRowData([row], rowObj)[0])}
-                                            onClick={() => rowAction.onAction({ id: data.userKey || row.id })}
+                                            onClick={() => rowAction.onAction({ id: row.id }, rowObj[row.id])}
                                           />
                                         ))}
                                     </OverflowMenu>
@@ -364,7 +413,7 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
                         <SFGEmptyState type="datatable" {...config.emptyStateConfig[emptyState]}></SFGEmptyState>
                       )}
                     </div>
-                    {config.paginationConfig && (
+                    {config.paginationConfig && !(emptyState !== undefined && config.emptyStateConfig !== undefined) && (
                       <Pagination
                         data-testid="table-pagination"
                         backwardText={t('common:pagination.backwardText')}
@@ -390,5 +439,5 @@ const SFGDataTable = ({ data, totalItems, controller, config, className, emptySt
       )}
     </>
   );
-};
+});
 export { SFGDataTable };

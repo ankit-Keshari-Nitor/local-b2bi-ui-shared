@@ -36,15 +36,17 @@ import { ToastNotificationContainer } from '../components';
 import { useApplicationInfo } from '../core/providers/ApplicationInfoProvider';
 
 import './Container.scss';
+import { PageContainerProvider } from '../core/providers/PageContainerProvider';
 
 const Container = (props) => {
   const { t } = useTranslation();
-  const { sideNav, headerMenuList } = useConfiguration();
+  const { sideNav, headerMenuList, switcherItemList } = useConfiguration();
   const { user, logout } = useAuth();
   const { defaultRoute, organizationContext, setDefaults } = useApplicationInfo();
   const [showRightPanel, setShowRightPanel] = useState(false);
   const { hasAccess } = useResource();
   const [currentPage, setCurrentPage] = useState();
+  const [activeRoute, setActiveRoute] = useState();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -52,33 +54,61 @@ const Container = (props) => {
     setShowRightPanel(!showRightPanel);
   };
 
-  const renderSideNav = (configList) => {
-    return processResourceKey(configList).map((navConfig) => {
-      if (navConfig.to.startsWith(currentPage)) {
-        if (navConfig.children?.length > 0) {
-          return (
-            <SideNavMenu data-testid={'secondary-nav-' + navConfig.to} defaultExpanded key={navConfig.to} renderIcon={navConfig.icon} title={t(navConfig.title)}>
-              {renderSideNav(navConfig.children)}
-            </SideNavMenu>
-          );
-        } else {
-          return (
-            <SideNavLink
-              data-testid={'secondary-nav-' + navConfig.to}
-              isActive={location.pathname.startsWith(navConfig.to)}
-              key={navConfig.to}
-              renderIcon={navConfig.icon}
-              as={Link}
-              to={navConfig.to}
-            >
-              {t(navConfig.label)}
-            </SideNavLink>
-          );
+  //console.log(JSON.stringify(sideNav), location.pathname);
+
+  const getActiveRoute = (routes, path) => {
+    let maxMatchLength = 0;
+    let activeRoute = null;
+  
+    function findMatchingRoute(routes, path) {
+      for (const route of routes) {
+        const routePath = route.to;
+        if (path.startsWith(routePath)) {
+          const matchLength = routePath.length;
+          if (matchLength > maxMatchLength) {
+            maxMatchLength = matchLength;
+            activeRoute = route;
+          }          
         }
-      } else {
-        return '';
+        if (route.children) {
+          findMatchingRoute(route.children, path);
+        }
       }
-    });
+    }
+  
+    findMatchingRoute(routes, path);
+    return activeRoute;
+  }
+
+  const renderSideNav = (configList) => {
+    return processResourceKey(configList)
+      .filter((sideNav) => sideNav.isVisible || sideNav.isVisible === undefined)
+      .map((navConfig) => {
+        if (navConfig.to.startsWith(currentPage)) {
+          if (navConfig.children?.length > 0) {
+            return (
+              <SideNavMenu data-testid={'secondary-nav-' + navConfig.to} defaultExpanded key={navConfig.to} renderIcon={navConfig.icon} title={t(navConfig.title)}>
+                {renderSideNav(navConfig.children)}
+              </SideNavMenu>
+            );
+          } else {
+            return (
+              <SideNavLink
+                data-testid={'secondary-nav-' + navConfig.to}
+                isActive={activeRoute && activeRoute.to === navConfig.to}
+                key={navConfig.to}
+                renderIcon={navConfig.icon}
+                as={Link}
+                to={navConfig.to}
+              >
+                {t(navConfig.label)}
+              </SideNavLink>
+            );
+          }
+        } else {
+          return '';
+        }
+      });
   };
 
   const processResourceKey = (configList) => {
@@ -99,33 +129,35 @@ const Container = (props) => {
   };
 
   const renderHeaderMenu = (headerMenuList, isSideNavExpanded, onClickSideNavExpand) => {
-    return processResourceKey(headerMenuList).map((headerMenu) => {
-      if (headerMenu.children?.length > 0) {
-        return (
-          <HeaderMenu data-testid={'primary-nav-' + headerMenu.id} key={headerMenu.to} aria-label="" menuLinkName={t(headerMenu.title)}>
-            {renderHeaderMenu(headerMenu.children)}
-          </HeaderMenu>
-        );
-      } else {
-        return (
-          <HeaderMenuItem
-            data-testid={'primary-nav-' + headerMenu.id}
-            isActive={location.pathname.startsWith(headerMenu.to)}
-            key={headerMenu.to}
-            as={Link}
-            to={headerMenu.to}
-            onClick={() => {
-              setCurrentPage(headerMenu.to);
-              if (!isSideNavExpanded) {
-                onClickSideNavExpand();
-              }
-            }}
-          >
-            {t(headerMenu.label)}
-          </HeaderMenuItem>
-        );
-      }
-    });
+    return processResourceKey(headerMenuList)
+      .filter((headerMenu) => headerMenu.isVisible || headerMenu.isVisible === undefined)
+      .map((headerMenu) => {
+        if (headerMenu.children?.length > 0) {
+          return (
+            <HeaderMenu data-testid={'primary-nav-' + headerMenu.id} key={headerMenu.to} aria-label="" menuLinkName={t(headerMenu.title)}>
+              {renderHeaderMenu(headerMenu.children)}
+            </HeaderMenu>
+          );
+        } else {
+          return (
+            <HeaderMenuItem
+              data-testid={'primary-nav-' + headerMenu.id}
+              isActive={location.pathname.startsWith(headerMenu.to)}
+              key={headerMenu.to}
+              as={Link}
+              to={headerMenu.to}
+              onClick={() => {
+                setCurrentPage(headerMenu.to);
+                if (!isSideNavExpanded) {
+                  onClickSideNavExpand();
+                }
+              }}
+            >
+              {t(headerMenu.label)}
+            </HeaderMenuItem>
+          );
+        }
+      });
   };
 
   useEffect(() => {
@@ -139,6 +171,26 @@ const Container = (props) => {
 
     setDefaults();
   }, []);
+
+  useEffect(() => {
+    const paths = location.pathname.split('/');
+    if (paths.length === 2 && paths[1].length === 0) {
+      setCurrentPage(defaultRoute);
+    } else {
+      setCurrentPage('/' + paths[1]);
+    }
+    setActiveRoute(getActiveRoute(sideNav,location.pathname))
+  }, [location, defaultRoute]);
+
+  useEffect(() => {
+    const paths = location.pathname.split('/');
+    if (paths.length === 2 && paths[1].length === 0) {
+      navigate(defaultRoute);
+      setCurrentPage(defaultRoute);
+    } else {
+      setCurrentPage('/' + paths[1]);
+    }
+  }, [defaultRoute]);
 
   return (
     <>
@@ -180,36 +232,29 @@ const Container = (props) => {
                     <HeaderPanel aria-label="Header Panel" expanded={showRightPanel}>
                       {/*<Button onClick={() => logout()}>Sign out</Button>*/}
                       <Switcher aria-label="Switcher Container" expanded={showRightPanel}>
-                        <SwitcherItem aria-label="Link 1" href="#">
-                          <div>{user.userName || user.username}</div>
-                          <div>(Administrator)</div>
-                        </SwitcherItem>
-                        <SwitcherDivider />
-                        <SwitcherItem href="#" aria-label="Link 2">
-                          Change Password
-                        </SwitcherItem>
-                        <SwitcherItem aria-label="Link 3" onClick={() => logout()}>
-                          Sign out
-                        </SwitcherItem>
-                        <SwitcherItem href="#" aria-label="Link 5">
-                          Preferences
-                        </SwitcherItem>
-                        <SwitcherItem
-                          aria-label="Link 6"
-                          onClick={() => {
-                            navigate('/manage/switchorganization');
-                            setShowRightPanel(false);
-                          }}
-                        >
-                          Switch Organization
-                        </SwitcherItem>
-                        <SwitcherDivider />
-                        <SwitcherItem href="#" aria-label="Link 4">
-                          Help
-                        </SwitcherItem>
-                        <SwitcherItem href="#" aria-label="Link 6">
-                          Contact Support
-                        </SwitcherItem>
+                        {switcherItemList
+                          .filter((switcherItem) => hasAccess(switcherItem.resourceKey))
+                          .filter((switcherItem) => switcherItem.isVisible || switcherItem.isVisible === undefined)
+                          .map((switcherItem) =>
+                            switcherItem.divider ? (
+                              <SwitcherDivider key={switcherItem.id} />
+                            ) : (
+                              <SwitcherItem
+                                key={switcherItem.id}
+                                aria-label={switcherItem.ariaLabel}
+                                onClick={() => {
+                                  if (switcherItem.navigateTo) {
+                                    navigate(switcherItem.navigateTo);
+                                  } else {
+                                    switcherItem.onAction && switcherItem.onAction();
+                                  }
+                                  setShowRightPanel(false);
+                                }}
+                              >
+                                {switcherItem.content}
+                              </SwitcherItem>
+                            )
+                          )}
                       </Switcher>
                     </HeaderPanel>
                   </Header>
@@ -222,7 +267,9 @@ const Container = (props) => {
                       </section>
                       <section className="shell-page-content">
                         <PageProvider>
-                          <Outlet />
+                          <PageContainerProvider>
+                            <Outlet />
+                          </PageContainerProvider>
                           <ModalMessage></ModalMessage>
                           <ModalPageContainer></ModalPageContainer>
                         </PageProvider>

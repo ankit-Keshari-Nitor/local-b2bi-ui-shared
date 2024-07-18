@@ -16,7 +16,7 @@ const Checkbox = ({ name, rules, disabled, ...props }) => {
   );
 };
 
-const CheckboxGroup = ({ children, ...props }) => {
+const CheckboxGroup = ({ children,  infoText, ...props }) => {
   const { t } = useTranslation();
   // const processedRules = processRules(rules, t);
   return (

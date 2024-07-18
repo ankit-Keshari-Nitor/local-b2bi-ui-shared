@@ -19,11 +19,11 @@ const typeClasses = {
   MODAL: 'page-type-modal'
 };
 
-const Page = ({ children, className, type, ...props }) => {
+const Page = ({ children, className, type, mode, ...props }) => {
   const { loadingState } = usePage();
   return (
     <>
-      <div className={' page-content ' + typeClasses[type ? type : 'DFAULT'] + ' ' + (className ? className : '')} {...props}>
+      <div className={' page-content ' + typeClasses[type ? type : 'DEFAULT'] + ' ' + (className ? className : '')} {...props}>
         {loadingState && <Loading description={loadingStateConfig[loadingState]?.description} withOverlay={true} />}
         {children}
       </div>

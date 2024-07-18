@@ -65,12 +65,12 @@ Then('User verifies field with label {string} of type [{formFieldType}] is [{ele
   }
 });
 
-Then('User verifies field {string} of type [{formFieldType}] has value {string} in [Form][{string}]', async function (fieldId, fieldType, fieldValue, formId) {
+Then('User verifies field {string} of type [{formFieldType}] has value {stringJsonPath} in [Form][{string}]', async function (fieldId, fieldType, fieldValue, formId) {
   const formField = await (await getPage(this.page).getForm(formId)).getFormField(fieldId, fieldType);
   await formField.verifyValue(fieldValue);
 });
 
-When('User updates field {string} of type [{formFieldType}] with value {string} in [Form][{string}]', async function (fieldId, fieldType, fieldValue, formId) {
+When('User updates field {string} of type [{formFieldType}] with value {stringJsonPath} in [Form][{string}]', async function (fieldId, fieldType, fieldValue, formId) {
   const formField = await (await getPage(this.page).getForm(formId)).getFormField(fieldId, fieldType);
   await formField.updateValue(fieldValue);
 });
@@ -97,3 +97,4 @@ Then('User verifies form fields with values in [Form][{string}]', async function
     await formField.verifyValue(formFieldData.value);
   }
 });
+

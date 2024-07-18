@@ -35,9 +35,10 @@ const RadioButtonGroup = ({ name, rules, children, ...props }) => {
   const onChangeRadioGroup = (val, nm, event) => {
     onChange(event);
   };
+  // TODO: Remove setting key and find other ways to make radio button work with valueSelected
   return (
     <>
-      <CDSRadioButtonGroup name={rName} onChange={onChangeRadioGroup} defaultSelected={getValues(name)} onBlur={onBlur} invalid={invalid} invalidText={error?.message} {...props}>
+      <CDSRadioButtonGroup key={getValues(name)}  name={rName} onChange={onChangeRadioGroup} defaultSelected={getValues(name)} valueSelected={getValues(name)} onBlur={onBlur} invalid={invalid} invalidText={error?.message} {...props}>
         {children}
       </CDSRadioButtonGroup>
     </>

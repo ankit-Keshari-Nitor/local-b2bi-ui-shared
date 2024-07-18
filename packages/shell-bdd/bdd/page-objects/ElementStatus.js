@@ -9,6 +9,8 @@ const checkElementStatus = async (element, status) => {
     return await expect(element).toBeVisible();
   } else if (status === 'hidden') {
     return await expect(element).toBeHidden();
+  } else if (status === 'readonly') {
+    return await expect(element).not.toBeEditable();
   }
 };
 

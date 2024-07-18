@@ -8,6 +8,7 @@ import { ResourceContext, ResourceProvider, useResource } from './ResourceProvid
 import { RouterProvider } from './RouterProvider';
 import { NotificationContext, NotificationProvider, useNotification } from './NotificationProvider';
 import { ApplicationInfoProvider, useApplicationInfo } from './ApplicationInfoProvider';
+import { PageContainerProvider, usePage as usePageContainer } from './PageContainerProvider';
 
 const ShellProviders = {
   ApplicationInfoProvider,
@@ -44,7 +45,10 @@ const ShellProviders = {
 
   NotificationContext,
   NotificationProvider,
-  useNotification
+  useNotification,
+
+  PageContainerProvider,
+  usePageContainer
 };
 
 export default ShellProviders;
@@ -75,5 +79,7 @@ export {
   RouterProvider,
   NotificationContext,
   NotificationProvider,
-  useNotification
+  useNotification,
+  PageContainerProvider,
+  usePageContainer
 };

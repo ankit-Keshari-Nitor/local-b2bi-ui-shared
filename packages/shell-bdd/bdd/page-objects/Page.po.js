@@ -2,6 +2,8 @@ import { expect } from '@playwright/test';
 import checkElementStatus from './ElementStatus.js';
 import Form from './Form.po.js';
 import DataTable from './data-table.po.js';
+import ConfigurationTiles from './configuration-tiles.po.js';
+import FlowProgressIndicator from './flowPrpgressIndicator.po.js'
 class Page {
   constructor(parent, pageName) {
     this.pageName = pageName;
@@ -42,6 +44,14 @@ class Page {
 
   async getDataTable(datatableName) {
     return new DataTable(this.parent, await this._getPage(), datatableName);
+  }
+
+  async getConfigurationsTiles(groupName) {
+    return new ConfigurationTiles(this.parent, await this._getPage(), groupName)
+  }
+
+  async getFlowIndicatorBox(groupName){
+    return new FlowProgressIndicator(this.parent,await this._getPage(),groupName)
   }
 }
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { useModal } from '../../core/providers/ModalProvider';
-import { Modal, ComposedModal, Layer } from '@carbon/react';
+import { ComposedModal, Layer } from '@carbon/react';
 import { useEffect, useState } from 'react';
+import { PageContainerProvider } from '../../core/providers/PageContainerProvider';
 
 const modalSizeClasses = {
   lg: 'cds--modal-lg',
@@ -22,7 +23,7 @@ const ModalPageContainer = () => {
     } else {
       setShowModal(false);
     }
-  }, [modalConfig]);
+  }, [modalConfig, getModalConfig]);
 
   const close = () => {
     setShowModal(false);
@@ -31,7 +32,7 @@ const ModalPageContainer = () => {
   };
   return (
     <>
-      <Layer>
+      <Layer level={1}>
         <ComposedModal
           open={showModal}
           size={modalConfigObj?.size}
@@ -40,7 +41,7 @@ const ModalPageContainer = () => {
           onClose={close}
           preventCloseOnClickOutside={true}
         >
-          {showModal && modalConfigObj && modalConfig && modalConfigObj.element}
+          {showModal && modalConfigObj && modalConfig && <PageContainerProvider> {modalConfigObj.element}</PageContainerProvider>}
         </ComposedModal>
       </Layer>
     </>

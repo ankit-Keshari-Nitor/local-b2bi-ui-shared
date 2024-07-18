@@ -20,6 +20,7 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
     getValues,
     control
   } = useForm({ defaultValues: defaultValues }, 'filter');
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isChange, setIsChange] = useState(false);
   const [defaultFormValue, setDefaultFormValue] = useState({});
   const [filterListData, setFilterListData] = useState({});
@@ -51,14 +52,18 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
     filterList.forEach((filter) => {
       if (filter.type === 'input') {
         formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
+      } else if (filter.type === 'date') {
+        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
       } else if (filter.type === 'combobox') {
         formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
         if (!filterListData[filter.name]) {
-          filterListDataTemp[filter.name] = values[filter.name] ? [values[filter.name]] : filter.defaultValue ? filter.defaultValue : [];
+          filterListDataTemp[filter.name] = filter.getOptions? filter.getOptions() : filter.options.length ? filter.options : [];
         }
       } else if (filter.type === 'checkbox-group') {
         formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : [];
       } else if (filter.type === 'radio-group') {
+        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
+      } else if (filter.type === 'toggle') {
         formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
       }
     });
@@ -68,6 +73,7 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
     });
     setDefaultFormValue(formDefaultValue);
     reset(formDefaultValue);
+    setIsInitialized(true);
   }, [filterList, values]);
 
   const filterItems = (menu) => {
@@ -90,83 +96,93 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
         </div>
       </Section>
       <Section className="sfg--filter-field-container">
-        {filterList
-          .filter((item) => {
-            return item.isVisible || item.isVisible === undefined;
-          })
-          .map((item, i) => {
-            if (item.type === 'input') {
-              return <CDS.TextInput className="sfg--filter-field" data-testid={item.id} id={item.id} key={item.name} type="text" name={item.name} labelText={t(item.label)} />;
-            }
-            if (item.type === 'combobox') {
-              return (
-                <CDS.ComboBox
-                  className="sfg--filter-field"
-                  data-testid={item.id}
-                  id={item.id}
-                  key={item.name}
-                  items={filterListData[item.name] || []}
-                  name={item.name}
-                  itemToString={(item) => (item ? item?.text : '')}
-                  getValue={(item) => item}
-                  //selectedItem={getValues(item.name)}
-                  //itemToElement={(item) => (item ? <span>{item.text}</span> : '')}
-                  titleText={t(item.label)}
-                  onInputChange={(inputText) => {
-                    if (inputText.length > 2) {
-                      const data = {
-                        ...filterListData
-                      };
-                      item.getFilteredOptions(inputText, item).then((filterList) => {
-                        data[item.name] = filterList;
-                        setFilterListData(data);
-                      });
-                    }
-                  }}
-                  // shouldFilterItem={filterItems}
-                ></CDS.ComboBox>
-              );
-            }
-            if (item.type === 'checkbox-group') {
-              return (
-                <CDS.CheckboxGroup key={item.name} legendText={t(item.label)} className="sfg--filter-field checkbox-group">
-                  {item.options.map((checkbox, j) => {
-                    return (
-                      <CDS.Checkbox
-                        key={checkbox.name}
-                        data-testid={checkbox.id}
-                        value={checkbox.value}
-                        labelText={t(checkbox.label)}
-                        name={item.name}
-                        id={'filter' + '.' + item.name + '.' + checkbox.value}
-                      />
-                    );
-                  })}
-                  {watch(item.name)?.length > 0 && (
-                    <Tag size="sm" filter type="high-contrast" title="Clear Filter" key={item.name + i} onClose={() => OnClose(item.name)}>
-                      {watch(item.name).length}
-                    </Tag>
-                  )}
-                </CDS.CheckboxGroup>
-              );
-            }
-            if (item.type === 'radio-group') {
-              return (
-                <CDS.RadioButtonGroup
-                  key={item.name}
-                  name={item.name}
-                  legendText={t(item.label)}
-                  valueSelected={getValues(item.name)}
-                  className="sfg--filter-field radio-group"
-                  orientation="vertical"
-                >
-                  {item.options.map((radio, j) => {
-                    return <CDS.RadioButton key={radio.name} name={item.name} id={'filter' + '.' + item.name + '.' + radio.value} labelText={t(radio.label)} value={radio.value} />;
-                  })}
-                </CDS.RadioButtonGroup>
-              );
-            }
-          })}
+        {isInitialized &&
+          filterList
+            .filter((item) => {
+              return item.isVisible || item.isVisible === undefined;
+            })
+            .map((item, i) => {
+              if (item.type === 'input') {
+                return <CDS.TextInput className="sfg--filter-field" data-testid={item.id} id={item.id} key={item.name} type="text" name={item.name} labelText={t(item.label)} />;
+              }
+              if (item.type === 'date') {
+                return <CDS.DateInput className="sfg--filter-field" data-testid={item.id} id={item.id} key={item.name} name={item.name} labelText={t(item.label)} />;
+              }
+              if (item.type === 'combobox') {
+                return (
+                  <CDS.ComboBox
+                    className="sfg--filter-field"
+                    data-testid={item.id}
+                    id={item.id}
+                    key={item.name}
+                    items={filterListData[item.name] || []}
+                    name={item.name}
+                    itemToString={(dataItem) => (dataItem ? (item.displayValue ? dataItem[item.displayValue] : dataItem?.text) : '')}
+                    getValue={(dataItem) => dataItem}
+                    //selectedItem={getValues(item.name)}
+                    //itemToElement={(item) => (item ? <span>{item.text}</span> : '')}
+                    titleText={t(item.label)}
+                    onInputChange={(inputText) => {
+                      if (item.getFilteredOptions && inputText.length > 2) {
+                        const data = {
+                          ...filterListData
+                        };
+                        item.getFilteredOptions(inputText, item).then((filterList) => {
+                          data[item.name] = filterList;
+                          setFilterListData(data);
+                        });
+                      }
+                    }}
+                    // shouldFilterItem={filterItems}
+                  ></CDS.ComboBox>
+                );
+              }
+              if (item.type === 'checkbox-group') {
+                return (
+                  <CDS.CheckboxGroup key={item.name} legendText={t(item.label)} disabled={item.disabled} className="sfg--filter-field checkbox-group">
+                    {item.options.map((checkbox, j) => {
+                      return (
+                        <CDS.Checkbox
+                          key={checkbox.name}
+                          data-testid={checkbox.id}
+                          value={checkbox.value}
+                          labelText={item?.mode === 'STATIC' ? checkbox.label : t(checkbox.label)}
+                          name={item.name}
+                          disabled={checkbox.disabled}
+                          id={'filter.' + item.name + '.' + checkbox.value}
+                        />
+                      );
+                    })}
+                    {watch(item.name)?.length > 0 && (
+                      <Tag size="sm" filter type="high-contrast" title="Clear Filter" key={item.name + i} onClose={() => OnClose(item.name)}>
+                        {watch(item.name).length}
+                      </Tag>
+                    )}
+                  </CDS.CheckboxGroup>
+                );
+              }
+              if (item.type === 'radio-group') {
+                return (
+                  <CDS.RadioButtonGroup
+                    key={item.name}
+                    name={item.name}
+                    legendText={t(item.label)}
+                    valueSelected={getValues(item.name)}
+                    className="sfg--filter-field radio-group"
+                    orientation="vertical"
+                  >
+                    {item.options.map((radio, j) => {
+                      return <CDS.RadioButton key={radio.name} name={item.name} id={'filter.' + item.name + '.' + radio.value} labelText={t(radio.label)} value={radio.value} />;
+                    })}
+                  </CDS.RadioButtonGroup>
+                );
+              }
+              if (item.type === 'toggle') {
+                return (
+                  <CDS.Toggle key={item.name} labelText={t(item.label)} labelA={t(item.labelA)} labelB={t(item.labelB)} name={item.name} id={'filter.' + item.name}></CDS.Toggle>
+                );
+              }
+            })}
       </Section>
       <Section className="sfg--fitler-footer">
         <Button kind="ghost" onClick={() => onCancel()} className="" name="cancel" data-testid="filter-cancel-btn">

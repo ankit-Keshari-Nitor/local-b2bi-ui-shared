@@ -35,6 +35,10 @@
     flex-direction: column;
     overflow: auto;
 
+    .cds--text-input-wrapper {
+      flex: none;
+    }
+
     .sfg--filter-field {
       margin-top: $spacing-05;
       margin-bottom: $spacing-05;

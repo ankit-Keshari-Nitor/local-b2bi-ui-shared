@@ -1,3 +1,7 @@
+import React from 'react';
+import { Tooltip, Button } from '@carbon/react';
+import { Information } from '@carbon/icons-react';
+
 function isBoolean(value) {
   return typeof value === 'boolean';
 }
@@ -18,7 +22,7 @@ const supportedPatterns = {
   PASSWORD: /^(?=.*[0-9])(?=.*[!@#$%^&*()-_=+{};:,<.>?\\|]).{8,15}$/
 };
 
-const processRules = (options={}, t) => {
+const processRules = (options = {}, t) => {
   if (options.hasOwnProperty('required') && isBoolean(options.required) && options.required) {
     options.required = t('shell:form.validations.required');
   }
@@ -55,4 +59,42 @@ const processRules = (options={}, t) => {
   return options;
 };
 
-export { processRules };
+const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText, readOnly, required }, t) => {
+  let placeholderType = '';
+
+  switch (fieldType) {
+    case 'TextInput':
+    case 'NumberInput':
+    case 'TextArea':
+    case 'Password':
+      placeholderType = 'enter';
+      break;
+    case 'Combobox':
+    case 'MultSelect':
+      placeholderType = 'select';
+      break;
+    default:
+      placeholderType = 'enter';
+  }
+
+  const newLabelText = required || readOnly ? labelText : t('shell:form.labels.optional', { value: labelText });
+  const newPlaceholder = placeholder || (readOnly ? '' : t(`shell:form.placeholder.${placeholderType}`, { label: labelText }));
+  return {
+    labelText: infoText ? (
+      <>
+        {newLabelText}
+        <Tooltip align="top-left" label={infoText}>
+          <Button className="sfg--tooltip" kind="ghost">
+            <Information />
+          </Button>
+        </Tooltip>
+      </>
+    ) : (
+      newLabelText
+    ),
+    placeholder: newPlaceholder,
+    readOnly
+  };
+};
+
+export { processRules, getFieldAttributes };

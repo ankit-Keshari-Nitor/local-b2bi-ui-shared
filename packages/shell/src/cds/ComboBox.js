@@ -3,9 +3,9 @@ import { ComboBox as CDSComboBox } from '@carbon/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
-import { processRules } from './FormUtils';
+import { processRules, getFieldAttributes } from './FormUtils';
 
-const ComboBox = ({ name, rules, disabled, items, itemToString, getValue, itemValue, itemDisplayValue, ...props }) => {
+const ComboBox = ({ name, rules, disabled, items, itemToString, getValue, itemValue, itemDisplayValue, labelText, placeholder, infoText, readOnly, ...props }) => {
   const { t } = useTranslation();
   const processedRules = processRules(rules, t);
   const { control } = useFormContext();
@@ -33,7 +33,7 @@ const ComboBox = ({ name, rules, disabled, items, itemToString, getValue, itemVa
             items &&
             value &&
             items.filter((item) => {
-              if(typeof value === "object") {
+              if (typeof value === 'object') {
                 return item.id === value.id;
               }
               return item.id === value;
@@ -56,6 +56,7 @@ const ComboBox = ({ name, rules, disabled, items, itemToString, getValue, itemVa
               itemToString={itemToString}
               invalid={invalid}
               invalidText={error?.message}
+              {...getFieldAttributes({ fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
               // shouldFilterItem={filterItems}
               {...props}
             />

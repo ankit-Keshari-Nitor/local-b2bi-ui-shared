@@ -29,7 +29,7 @@
   border-right: 1px solid var(--cds-border-subtle);
 }
 
-.cds--search {
+.cds--btn + .cds--search {
   border: 1px solid var(--cds-border-subtle);
   border-top: none;
 }
@@ -100,5 +100,81 @@
       flex-direction: column;
       justify-content: center;
     }
+  }
+}
+
+.sfg--datatable--row-actions {
+  width: 4rem;
+}
+
+.cds--data-table {
+  tbody {
+    .sfg--data-table--column-label {
+    }
+    .sfg--data-table--column-tooltip {
+      padding-right: 0px;
+      width: 1rem;
+      .cds--btn {
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+    }
+    .sfg--data-table--column-label-icon {
+      span {
+        vertical-align: middle;
+      }
+    }
+    .sfg--data-table--column-icon-label {
+      span {
+        vertical-align: middle;
+      }
+    }
+    .sfg--data-table--column-button {
+    }
+    .sfg--data-table--column-link {
+      .cds--link {
+        cursor: pointer;
+      }
+    }
+    .sfg--data-table--column-array-label {
+    }
+    .sfg--data-table--column-tag-label {
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        max-width: 200px;
+      }
+    }
+  }
+  .cds--text-truncate--end {
+    white-space: nowrap; /* Prevent the text from wrapping to the next line */
+    overflow: hidden; /* Hide the overflow text */
+    text-overflow: ellipsis; /* Display an ellipsis (...) to indicate the overflow */
+    max-width: 100%; /* Ensure the text container has a maximum width */
+    display: block; /* Ensure the element is block-level for the width to apply */
+  }
+}
+
+.sfg-datatable-row-buttonset {
+  display: flex;
+}
+
+.sfg--datatable--single-row-action-button {
+  background-color: unset !important;
+  color: #000 !important;
+  &:hover {
+    background-color: #ddd !important;
+  }
+}
+
+.cds--skeleton {
+  &.cds--data-table-container {
+    margin: 0px $spacing-05;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 }

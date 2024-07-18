@@ -1,16 +1,73 @@
 import { RestApiService } from './RestApiService';
+import { generatePath } from 'react-router-dom';
+
+const generatePathWithConditionalTrailingSlash = (pathTemplate, params) => {
+  const generatedPath = generatePath(pathTemplate, params);
+  return pathTemplate.endsWith('/') ? `${generatedPath}/` : generatedPath;
+};
+
+function customParamsSerializer(params) {
+  const parts = [];
+
+  for (const key in params) {
+    if (params.hasOwnProperty(key)) {
+      const value = params[key];
+      if (Array.isArray(value)) {
+        value.forEach((val) => {
+          if (val !== undefined && val !== null) {
+            parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(val)}`);
+          }
+        });
+      } else if (value !== undefined && value !== null) {
+        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+      }
+    }
+  }
+
+  return parts.join('&');
+}
 
 class DataService {
   getDataLoaderConfig;
-  constructor(getDataLoaderConfig) {
+  axios;
+  constructor(getDataLoaderConfig, axios) {
     this.getDataLoaderConfig = getDataLoaderConfig;
+    this.axios = axios;
   }
 
   call(dataLoaderId, input, options) {
     try {
       const dataLoaderConfig = this.getDataLoaderConfig(dataLoaderId);
-      if (dataLoaderConfig.type === 'RESTAPI') {
-        return new RestApiService().call(dataLoaderConfig, input, options);
+      dataLoaderConfig.url = generatePathWithConditionalTrailingSlash(dataLoaderConfig.url, input);
+      if (dataLoaderConfig.handleUrl) {
+        dataLoaderConfig.url = dataLoaderConfig.handleUrl(dataLoaderConfig.url, input, options);
+      }
+      const cloneInput = JSON.parse(JSON.stringify(input));
+      dataLoaderConfig.handleInput && dataLoaderConfig.handleInput(cloneInput, options);
+
+      if (dataLoaderConfig.mockResponse) {
+        // Return a promise that resolves with the mock response
+        return Promise.resolve({
+          data: dataLoaderConfig.mockResponse(restReq.url, input, options),
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: restReq,
+          request: null
+        });
+      } else {
+        if (dataLoaderConfig.type === 'RESTAPI') {
+          // return new RestApiService().call(dataLoaderConfig, cloneInput, options);
+          const restReq = {
+            url: dataLoaderConfig.url,
+            method: dataLoaderConfig.method,
+            data: input,
+            params: options?.params,
+            headers: options?.headers,
+            paramsSerializer: customParamsSerializer
+          };
+          return this.axios(restReq);
+        }
       }
     } catch (err) {
       console.log(err);

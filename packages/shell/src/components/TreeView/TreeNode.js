@@ -88,8 +88,8 @@ export default function TreeNode({
   }
   function handleClick(event) {
     event.stopPropagation();
-    // (enableCheckbox && showCheckbox) &&
-    if (!disabled && (!children || isParentSelectable)) {
+    // 
+    if (!disabled  && (!enableCheckbox || (enableCheckbox && showCheckbox)) && (!children || isParentSelectable)) {
       onTreeSelect?.(event, { id, label, value });
       onNodeSelect?.(event, { id, label, value });
       rest?.onClick?.(event);

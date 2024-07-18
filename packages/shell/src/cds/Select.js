@@ -3,9 +3,9 @@ import { Select as CDSSelect, SelectItem } from '@carbon/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { processRules } from './FormUtils';
+import { processRules, getFieldAttributes } from './FormUtils';
 
-const Select = ({ name, rules, disabled, children, ...props }) => {
+const Select = ({ name, rules, disabled, labelText, placeholder, infoText, children, readOnly, ...props }) => {
   const { t } = useTranslation();
   const processedRules = processRules(rules, t);
   const { control } = useFormContext();
@@ -29,6 +29,7 @@ const Select = ({ name, rules, disabled, children, ...props }) => {
               value={value}
               invalid={invalid}
               invalidText={error?.message}
+              {...getFieldAttributes({ fieldType: 'Select', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
               {...props}
             >
               {children}

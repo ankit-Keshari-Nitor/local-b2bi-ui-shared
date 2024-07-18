@@ -3,9 +3,9 @@ import { TextInput as CDSTextInput } from '@carbon/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { processRules } from './FormUtils';
+import { processRules, getFieldAttributes } from './FormUtils';
 
-const TextInput = ({ name, rules, disabled, ...props }) => {
+const TextInput = ({ name, rules, disabled, labelText, placeholder, infoText, readOnly, ...props }) => {
   const { t } = useTranslation();
   const processedRules = processRules(rules, t);
   const { control } = useFormContext();
@@ -29,6 +29,7 @@ const TextInput = ({ name, rules, disabled, ...props }) => {
               value={value}
               invalid={invalid}
               invalidText={error?.message}
+              {...getFieldAttributes({ fieldType: 'TextInput', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
               {...props}
             />
           );
