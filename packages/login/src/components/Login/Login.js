@@ -4,7 +4,6 @@ import { Theme, Header, HeaderName, Form, TextInput, Button, Checkbox } from '@c
 import { Information, ArrowRight } from '@carbon/icons-react';
 import { useTranslation } from 'react-i18next';
 import appConfigData from '../../appConfig.json';
-import * as AuthService from "../service/authService";
 import './Login.scss';
 
 const Login = (props) => {
@@ -31,7 +30,7 @@ const Login = (props) => {
     register,
     formState: { errors },
     handleSubmit,
-    handleSubmit : handleSubmitLoginForm,
+   // handleSubmit : handleSubmitLoginForm,
     getValues,
     watch
   } = useForm({
@@ -42,24 +41,24 @@ const Login = (props) => {
     }
   });
 
-  const onSubmitLoginForm = async (data) => {
-    setIsSubmitting(true);
-    // event.preventDefault();
+  // const onSubmitLoginForm = async (data) => {
+  //   setIsSubmitting(true);
+  //   // event.preventDefault();
     
-    const response = await AuthService.authenticateUser(data);
-    console.log("response",response);
+  //   // const response = await AuthService.authenticateUser(data);
+  //   // console.log("response",response);
 
-    let formData = getValues();
-    let userId = formData.userId;
+  //   let formData = getValues();
+  //   let userId = formData.userId;
 
-    if (formData.rememberId) {
-      if (localStorage) {
-        localStorage.userId = formData.userId;
-      }
-    } else {
-      localStorage.removeItem('userId');
-    }
-  };
+  //   if (formData.rememberId) {
+  //     if (localStorage) {
+  //       localStorage.userId = formData.userId;
+  //     }
+  //   } else {
+  //     localStorage.removeItem('userId');
+  //   }
+  // };
 
   let loginstate_page;
   if (state.page === 'userid') {
@@ -136,7 +135,7 @@ const Login = (props) => {
             </a>
           </div>
           {loginError && <div className="notification-container">{loginError}</div>}
-          <Form data-testid="loginForm" name="login" onSubmit={handleSubmitLoginForm(onSubmitLoginForm)} >
+          <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method='Post'>
             <div className="password-container">
               <TextInput.PasswordInput
                 id="login.password"
