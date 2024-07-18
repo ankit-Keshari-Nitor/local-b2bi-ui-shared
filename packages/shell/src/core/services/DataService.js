@@ -48,7 +48,7 @@ class DataService {
       if (dataLoaderConfig.mockResponse) {
         // Return a promise that resolves with the mock response
         return Promise.resolve({
-          data: dataLoaderConfig.mockResponse(restReq.url, input, options),
+          data: dataLoaderConfig.mockResponse(restReq.url, cloneInput, options),
           status: 200,
           statusText: 'OK',
           headers: {},
@@ -61,7 +61,7 @@ class DataService {
           const restReq = {
             url: dataLoaderConfig.url,
             method: dataLoaderConfig.method,
-            data: input,
+            data: cloneInput,
             params: options?.params,
             headers: options?.headers,
             paramsSerializer: customParamsSerializer

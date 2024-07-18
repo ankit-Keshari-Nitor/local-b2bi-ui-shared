@@ -13,7 +13,7 @@ const PageHeader = ({ title, description, ...props }) => {
 
   return (
     <>
-      {pageMode === 'ROUTE_PAGE' && (
+      {(pageMode === 'ROUTE_PAGE' || pageMode === 'SIDE_PAGE') && (
         <Layer className="page-header-container">
           <div className="cds--data-table-header">
             <h4 className="cds--data-table-header__title">{title}</h4>
