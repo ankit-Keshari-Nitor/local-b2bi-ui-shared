@@ -30,7 +30,6 @@ const Login = (props) => {
     register,
     formState: { errors },
     handleSubmit,
-   // handleSubmit : handleSubmitLoginForm,
     getValues,
     watch
   } = useForm({
@@ -41,24 +40,21 @@ const Login = (props) => {
     }
   });
 
-  // const onSubmitLoginForm = async (data) => {
-  //   setIsSubmitting(true);
-  //   // event.preventDefault();
-    
-  //   // const response = await AuthService.authenticateUser(data);
-  //   // console.log("response",response);
+  const submitLoginForm = () => {
+    setIsSubmitting(true);
+    // event.preventDefault();
+  
+    let formData = getValues();
+    let userId = formData.userId;
 
-  //   let formData = getValues();
-  //   let userId = formData.userId;
-
-  //   if (formData.rememberId) {
-  //     if (localStorage) {
-  //       localStorage.userId = formData.userId;
-  //     }
-  //   } else {
-  //     localStorage.removeItem('userId');
-  //   }
-  // };
+    if (formData.rememberId) {
+      if (localStorage) {
+        localStorage.userId = formData.userId;
+      }
+    } else {
+      localStorage.removeItem('userId');
+    }
+  };
 
   let loginstate_page;
   if (state.page === 'userid') {
@@ -135,7 +131,7 @@ const Login = (props) => {
             </a>
           </div>
           {loginError && <div className="notification-container">{loginError}</div>}
-          <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method='Post'>
+          <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method='Post' onSubmit={submitLoginForm}>
             <div className="password-container">
               <TextInput.PasswordInput
                 id="login.password"
