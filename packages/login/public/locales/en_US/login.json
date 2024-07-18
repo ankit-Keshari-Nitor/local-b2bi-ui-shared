@@ -1,13 +1,13 @@
 {
   "appName": "B2B Application",
-  "appTitle" : "IBM B2B Application",
-  "appDescription" : "",
-  "appLicence" :"",
+  "appTitle": "IBM B2B Application",
+  "appDescription": "",
+  "appLicence": "",
   "appPrefix": "IBM",
   "login": {
     "welcome_message": "Welcome to",
     "logIn": "Log in",
-    "CreateId": "Create an Id",
+    "createId": "Create an Id",
     "loginCreateMessage": "Don't have an account?",
     "passwordHelpMessage": "Logging in as {{userId}}.",
     "notYou": "Not you?",

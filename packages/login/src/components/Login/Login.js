@@ -7,7 +7,6 @@ import appConfigData from '../../appConfig.json';
 import './Login.scss';
 
 const Login = (props) => {
-
   const { t } = useTranslation();
 
   const [state, setState] = useState({
@@ -43,7 +42,7 @@ const Login = (props) => {
   const submitLoginForm = () => {
     setIsSubmitting(true);
     // event.preventDefault();
-  
+
     let formData = getValues();
     let userId = formData.userId;
 
@@ -65,9 +64,7 @@ const Login = (props) => {
             {t('login:login.logIn')}
           </div>
           <div className="sub-title" id="login_subtitle">
-            {t('login:login.loginCreateMessage')}
-            {' '}
-            <a id="create">{t('login:login.CreateId')}</a>
+            {t('login:login.loginCreateMessage')} <a id="create">{t('login:login.CreateId')}</a>
           </div>
           <Form data-testid="loginForm" name="login">
             <div className="userId-container">
@@ -131,7 +128,7 @@ const Login = (props) => {
             </a>
           </div>
           {loginError && <div className="notification-container">{loginError}</div>}
-          <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method='Post' onSubmit={submitLoginForm}>
+          <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method="Post" onSubmit={submitLoginForm}>
             <div className="password-container">
               <TextInput.PasswordInput
                 id="login.password"
@@ -159,14 +156,7 @@ const Login = (props) => {
               </div>
             </div>
             <div className="form-btn-container">
-              <Button
-                data-testid="login"
-                name="login"
-                kind="primary"
-                disabled={!watch('password') || isSubmitting || errors.password ? true : false}
-                tabIndex={0}
-                type="submit"
-              >
+              <Button data-testid="login" name="login" kind="primary" disabled={!watch('password') || isSubmitting || errors.password ? true : false} tabIndex={0} type="submit">
                 {t('login:login.login_btn')}
               </Button>
             </div>
