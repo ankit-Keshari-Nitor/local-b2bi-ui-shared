@@ -6,7 +6,7 @@ const PageBody = ({ children, className, ...props }) => {
   const { pageMode } = usePage();
   return (
     <>
-      {pageMode === 'ROUTE_PAGE' && (
+      {(pageMode === 'ROUTE_PAGE' || pageMode === 'SIDE_PAGE') && (
         <>
           <div className={'sfg--page-body ' + (className ? className : '')} {...props}>
             {children}

@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { ModalUtil } from './modal';
 import { NotificationUtil } from './notification';
 import { useResource } from '../providers/ResourceProvider';
+import { useSidePage } from '../../components';
 
 const PageUtil = () => {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ const PageUtil = () => {
   const notificationUtil = NotificationUtil();
   const { hasAccess } = useResource();
   const pageParams = useParams();
+  const { setSidePageConfig } = useSidePage();
 
   t.optional = (...args) => {
     const value = t(...args);
@@ -78,6 +80,19 @@ const PageUtil = () => {
     return newObj;
   };
 
+  const showSidePage = (sidePage, data) => {
+    return new Promise(function (sidePageResolve, sidePageReject) {
+      setSidePageConfig({
+        sidePage,
+        data,
+        onAction: (actionType, data) => {
+          setSidePageConfig(undefined);
+          sidePageResolve({ actionType, data });
+        }
+      });
+    });
+  };
+
   return {
     t: t,
     navigate: useNavigate(),
@@ -88,6 +103,7 @@ const PageUtil = () => {
     setStoredMessage,
     getSubsetJson,
     removeEmptyAttributes,
+    showSidePage,
     ...modalUtil,
     ...notificationUtil
   };

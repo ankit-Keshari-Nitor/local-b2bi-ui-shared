@@ -32,11 +32,12 @@ import { useAuth } from '../core/providers/AuthProvider';
 import { useConfiguration } from '../core/providers/ConfigurationProvider';
 import { useResource } from '../core/providers/ResourceProvider';
 import { PageProvider } from '../core/providers/PageProvider';
-import { ToastNotificationContainer } from '../components';
+import { ToastNotificationContainer, useSidePage } from '../components';
 import { useApplicationInfo } from '../core/providers/ApplicationInfoProvider';
+import { PageContainerProvider } from '../core/providers/PageContainerProvider';
+import { SidePageContainer } from '../components/SidePage/SidePageContainer';
 
 import './Container.scss';
-import { PageContainerProvider } from '../core/providers/PageContainerProvider';
 
 const Container = (props) => {
   const { t } = useTranslation();
@@ -59,7 +60,7 @@ const Container = (props) => {
   const getActiveRoute = (routes, path) => {
     let maxMatchLength = 0;
     let activeRoute = null;
-  
+
     function findMatchingRoute(routes, path) {
       for (const route of routes) {
         const routePath = route.to;
@@ -68,17 +69,17 @@ const Container = (props) => {
           if (matchLength > maxMatchLength) {
             maxMatchLength = matchLength;
             activeRoute = route;
-          }          
+          }
         }
         if (route.children) {
           findMatchingRoute(route.children, path);
         }
       }
     }
-  
+
     findMatchingRoute(routes, path);
     return activeRoute;
-  }
+  };
 
   const renderSideNav = (configList) => {
     return processResourceKey(configList)
@@ -179,7 +180,7 @@ const Container = (props) => {
     } else {
       setCurrentPage('/' + paths[1]);
     }
-    setActiveRoute(getActiveRoute(sideNav,location.pathname))
+    setActiveRoute(getActiveRoute(sideNav, location.pathname));
   }, [location, defaultRoute]);
 
   useEffect(() => {
@@ -261,23 +262,26 @@ const Container = (props) => {
                 </Theme>
                 <Content className={isSideNavExpanded ? 'main-content sidenav-expanded' : 'main-content'}>
                   <Theme className="h-inherit" theme="g10">
-                    <section className="h-inherit main-section">
-                      <section className="shell-breadscrumb-container">
-                        <Breadcrumb />
-                      </section>
-                      <section className="shell-page-content">
-                        <PageProvider>
+                    <PageProvider>
+                      <section className="h-inherit main-section">
+                        <section className="shell-breadscrumb-container">
+                          <Breadcrumb />
+                        </section>
+                        <section className="shell-page-content">
                           <PageContainerProvider>
                             <Outlet />
                           </PageContainerProvider>
                           <ModalMessage></ModalMessage>
                           <ModalPageContainer></ModalPageContainer>
-                        </PageProvider>
+                        </section>
                       </section>
-                    </section>
-                    <section class="shell-toast-container">
-                      <ToastNotificationContainer></ToastNotificationContainer>
-                    </section>
+                      <section className="h-inherit side-section">
+                        <SidePageContainer>Side Page content</SidePageContainer>
+                      </section>
+                      <section class="shell-toast-container">
+                        <ToastNotificationContainer></ToastNotificationContainer>
+                      </section>
+                    </PageProvider>
                   </Theme>
                 </Content>
               </>

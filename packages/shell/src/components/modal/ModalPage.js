@@ -22,6 +22,7 @@ const ModalPageContainer = () => {
       setShowModal(true);
     } else {
       setShowModal(false);
+      setModalConfigObj(undefined);
     }
   }, [modalConfig, getModalConfig]);
 

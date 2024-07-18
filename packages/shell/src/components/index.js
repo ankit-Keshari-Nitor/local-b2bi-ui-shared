@@ -18,6 +18,7 @@ import { PageHeader } from './page/PageHeader';
 import { PageBody } from './page/PageBody';
 import { PageActions } from './page/PageActions';
 import { ToastNotificationContainer } from './ToastNotification';
+import { SidePageContext, SidePageContainer, SidePageProvider, useSidePage } from './SidePage';
 
 const ShellComponents = {
   Breadcrumb,
@@ -41,7 +42,11 @@ const ShellComponents = {
   PageContainer,
   CDSTreeView,
   CDSTreeNode,
-  ToastNotificationContainer
+  ToastNotificationContainer,
+  SidePageContext,
+  SidePageContainer,
+  SidePageProvider,
+  useSidePage
 };
 export default ShellComponents;
 
@@ -67,5 +72,9 @@ export {
   PageContainer,
   CDSTreeView,
   CDSTreeNode,
-  ToastNotificationContainer
+  ToastNotificationContainer,
+  SidePageContext,
+  SidePageContainer,
+  SidePageProvider,
+  useSidePage
 };

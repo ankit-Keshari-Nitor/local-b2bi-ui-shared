@@ -1,0 +1,30 @@
+.cds--sidePage {
+  background-color: white;
+  height: 100%;
+  float: right;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.cds--sidePage-xl {
+  width: 80%;
+  min-width: 1200px;
+}
+
+.cds--sidePage-lg {
+  width: 50%;
+  min-width: 700px;
+}
+
+.cds--sidePage-md {
+  width: 40%;
+  min-width: 600px;
+}
+.cds--sidePage-sm {
+  width: 30%;
+  min-width: 500px;
+}
+.cds--sidePage-xs {
+  width: 25%;
+  min-width: 400px;
+}
