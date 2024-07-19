@@ -81,7 +81,7 @@ const Login = (props) => {
               />
               <div className="forgot-link">
                 <a id="forget_id_title" onClick={forgotId}>
-                  {t('login:login.forgot_id_link')}
+                  {t('login:login.forgot_Id_Link')}
                 </a>
               </div>
             </div>
@@ -100,7 +100,7 @@ const Login = (props) => {
               </Button>
             </div>
             <div className="form-remember-container">
-              <Checkbox labelText={t('login:login.remember_id')} id="rememberId" {...register('rememberId')} />
+              <Checkbox labelText={t('login:login.remember_Id')} id="rememberId" {...register('rememberId')} />
               <span className="information-holder">
                 <Information size="16" />
               </span>
@@ -152,17 +152,17 @@ const Login = (props) => {
                     setState({ ...state, page: 'forgotpassword' });
                   }}
                 >
-                  {t('login:login.forgot_password_link')}
+                  {t('login:login.forgot_Password_Link')}
                 </a>
               </div>
             </div>
             <div className="form-btn-container">
               <Button data-testid="login" name="login" kind="primary" disabled={!watch('password') || isSubmitting || errors.password ? true : false} tabIndex={0} type="submit">
-                {t('login:login.login_btn')}
+                {t('login:login.login_Button')}
               </Button>
             </div>
             <div className="form-remember-container">
-              <Checkbox labelText={t('login:login.remember_password')} id="rememberPassword" {...register('rememberPassword')} />
+              <Checkbox labelText={t('login:login.remember_Password')} id="rememberPassword" {...register('rememberPassword')} />
               <span className="information-holder">
                 <Information size="16" />
               </span>
@@ -186,7 +186,7 @@ const Login = (props) => {
         <div className="login-page-content">
           <div className="branding-content-container" style={appConfigData.backgroundStyle}>
             <div className="branding-name">
-              <div className="greeting">{t('login:login.welcome_message')}</div>
+              <div className="greeting">{t('login:login.welcome_Message')}</div>
               <div className="product-title">{t('appTitle')}</div>
             </div>
           </div>
