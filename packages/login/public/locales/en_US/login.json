@@ -1,0 +1,30 @@
+{
+  "appName": "B2B Application",
+  "appTitle": "IBM B2B Application",
+  "appDescription": "",
+  "appLicence": "",
+  "appPrefix": "IBM",
+  "login": {
+    "welcome_Message": "Welcome to",
+    "logIn": "Log in",
+    "createId": "Create an Id",
+    "loginCreateMessage": "Don't have an account?",
+    "passwordHelpMessage": "Logging in as {{userId}}.",
+    "notYou": "Not you?",
+    "userId": "User Id",
+    "continue": "Continue",
+    "login_Button": "Log in",
+    "forgot_Id_Link": "Forgot ID?",
+    "forgot_Password_Link": "Forgot Password?",
+    "remember_Id": "Remember ID",
+    "password": "Password",
+    "remember_Password": "Remember Password",
+    "togglePasswordOn": "Show password",
+    "togglePasswordOff": "Hide password"
+  },
+  "form": {
+    "validations": {
+      "required": "This field is required"
+    }
+  }
+}
