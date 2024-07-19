@@ -64,7 +64,7 @@ const Login = (props) => {
             {t('login:login.logIn')}
           </div>
           <div className="sub-title" id="login_subtitle">
-            {t('login:login.loginCreateMessage')} <a id="create">{t('login:login.CreateId')}</a>
+            {t('login:login.loginCreateMessage')} <a id="create">{t('login:login.createId')}</a>
           </div>
           <Form data-testid="loginForm" name="login">
             <div className="userId-container">
@@ -130,6 +130,7 @@ const Login = (props) => {
           {loginError && <div className="notification-container">{loginError}</div>}
           <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method="Post" onSubmit={submitLoginForm}>
             <div className="password-container">
+            <TextInput type="hidden" name="userId" value={getValues('userId')} />
               <TextInput.PasswordInput
                 id="login.password"
                 data-testid="password"
