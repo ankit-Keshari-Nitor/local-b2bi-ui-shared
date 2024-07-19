@@ -130,7 +130,7 @@ const Login = (props) => {
           {loginError && <div className="notification-container">{loginError}</div>}
           <Form data-testid="loginForm" name="login" action={appConfigData.loginSubmitUrl} method="Post" onSubmit={submitLoginForm}>
             <div className="password-container">
-            <TextInput type="hidden" name="userId" value={getValues('userId')} />
+              <TextInput type="hidden" name="userId" value={getValues('userId')} />
               <TextInput.PasswordInput
                 id="login.password"
                 data-testid="password"
