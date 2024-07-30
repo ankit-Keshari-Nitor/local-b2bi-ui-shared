@@ -190,7 +190,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                         >
                           <Filter></Filter>
                         </Button>
-                      )}                      
+                      )}
                       {config?.actionsConfig?.search && (
                         <TableToolbarSearch
                           data-testid="toolbarsreach"

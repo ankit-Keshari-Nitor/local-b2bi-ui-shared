@@ -67,9 +67,8 @@ const useDatatable = (tableConfig) => {
     return getListData();
   };
 
-  const _updateEmptyState = function (data) {
-    const listDataKey = Object.keys(data.data._embedded)[0];
-    const listData = data.data._embedded[listDataKey];
+  const _updateEmptyState = function (tableData) {
+    const listData = tableData.data.data;
     if (listData.length === 0) {
       const appliedFilterItems = removeEmptyAttributes(filter.current);
       if (Object.keys(appliedFilterItems).length > 0 || searchText.current) {

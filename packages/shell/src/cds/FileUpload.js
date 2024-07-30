@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FormItem, FileUploaderDropContainer, FileUploaderItem } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
+import { Controller, useFormContext } from 'react-hook-form';
+import { processRules } from './FormUtils';
 
 function convertToBytes(sizeStr) {
   // Regular expression to match the size string
@@ -46,9 +48,11 @@ function formatFileFormats(fileFormats) {
   return `${fileFormats.join(', ')} and ${lastFormat}`;
 }
 
-const FileUpload = ({ name, labelText, accept, maxFileSize, disabled, onChange, onDelete, value, ...props }) => {
+const FileUpload = ({ name, labelText, accept, maxFileSize, disabled, onChange, onDelete, value, rules, ...props }) => {
   const [file, setFile] = useState();
   const { t } = useTranslation();
+  const processedRules = processRules(rules, t);
+  const { control } = useFormContext();
 
   const onAddFiles = function (event, files) {
     const file = event.target.files || files.addedFiles;
@@ -107,42 +111,64 @@ const FileUpload = ({ name, labelText, accept, maxFileSize, disabled, onChange, 
   }, [value]);
 
   return (
-    <FormItem>
-      {file === undefined ? (
-        <>
-          <p className="cds--label-description">
-            {maxFileSize && t('shell:common.messages.fileUploadSizeDescription', { maxFileSize: maxFileSize })}&nbsp;
-            {accept && accept?.length > 0 && t('shell:common.messages.fileUploadFormatDescription', { supportedFileFormats: formatFileFormats([...accept]) })}
-          </p>
-          <FileUploaderDropContainer
-            accept={accept}
-            innerRef={{
-              current: '[Circular]'
-            }}
-            labelText={t('shell:common.actions.fileUpload')}
-            name={name}
-            onAddFiles={onAddFiles}
-            onChange={onAddFiles}
-            disabled={disabled}
-          />
-        </>
-      ) : (
-        <div className="cds--file-container cds--file-container--drop" name={name}>
-          <p className="cds--label-description">{labelText}</p>
-          <FileUploaderItem
-            errorSubject={file.errorSubject}
-            errorBody={file.errorBody}
-            iconDescription={file.iconDescription}
-            onDelete={onDeleteFile}
-            size="md"
-            status="edit"
-            name={file.name}
-            filesize={file.filesize}
-            invalid={file.invalid}
-          />
-        </div>
-      )}
-    </FormItem>
+    <Controller
+      control={control}
+      name={name}
+      rules={processedRules}
+      disabled={disabled}
+      render={({ field: { onChange, onBlur, value, disabled, name, ref }, fieldState: { invalid, isTouched, isDirty, error }, formState }) => {
+        const id = control?._options.name ? control._options.name + '.' + name : name;
+
+        return file === undefined ? (
+          <FormItem className="cds--file-upload-container">
+            <p className="cds--label-description">
+              {maxFileSize && t('shell:common.messages.fileUploadSizeDescription', { maxFileSize: maxFileSize })}&nbsp;
+              {accept && accept?.length > 0 && t('shell:common.messages.fileUploadFormatDescription', { supportedFileFormats: formatFileFormats([...accept]) })}
+            </p>
+            <FileUploaderDropContainer
+              className={invalid ? 'cds--file__drop-container-error' : ''}
+              accept={accept}
+              innerRef={{
+                current: '[Circular]'
+              }}
+              labelText={t('shell:common.actions.fileUpload')}
+              name={name}
+              id={id}
+              onAddFiles={(event, files) => {
+                onAddFiles(event, files);
+                onChange(files);
+              }}
+              onChange={onAddFiles}
+              disabled={disabled}
+            />
+            {error && <div class="cds--form-requirement">{error?.message}</div>}
+          </FormItem>
+        ) : (
+          <div className="cds--file-container cds--file-container--drop" name={name}>
+            <div class="cds--text-input__label-wrapper">
+              <label class="cds--label" dir="auto">
+                {labelText}
+              </label>
+            </div>
+            <FileUploaderItem
+              id={id}
+              errorSubject={file.errorSubject}
+              errorBody={file.errorBody}
+              iconDescription={file.iconDescription}
+              onDelete={() => {
+                onDeleteFile();
+                onChange(undefined);
+              }}
+              size="md"
+              status="edit"
+              name={file.name}
+              filesize={file.filesize}
+              invalid={file.invalid}
+            />
+          </div>
+        );
+      }}
+    ></Controller>
   );
 };
 

@@ -1,5 +1,5 @@
 {
-  "name": "login",
+  "name": "@b2bi/login",
   "version": "1.0.0",
   "description": "React login App",
   "main": "src/index.js",

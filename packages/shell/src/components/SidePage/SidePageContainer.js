@@ -6,6 +6,7 @@ import { PageContainerProvider } from '../../core/providers/PageContainerProvide
 import './SidePageContainer.scss';
 
 const sidePageSizeClasses = {
+  fs: 'cds--sidePage cds--sidePage-fs',
   xl: 'cds--sidePage cds--sidePage-xl',
   lg: 'cds--sidePage cds--sidePage-lg',
   md: 'cds--sidePage cds--sidePage-md',

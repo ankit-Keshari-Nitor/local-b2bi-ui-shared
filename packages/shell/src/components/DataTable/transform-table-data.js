@@ -160,16 +160,16 @@ const TransformTableData = (rows, columnConfig, t) => {
           transformObj[column.value] = (
             <>
               <div className="cds--text-truncate--end" title={displayData}>
-                {displayData}{' '}
+                {displayData}
               </div>
             </>
           );
         } else if (column.displayType === 'icon-label') {
           transformObj[column.value] = (
             <>
-              <span>
+              <span className="sfg--data-table--column-icon-before">
                 <columnAttributes.icon className={columnAttributes.iconClassName}></columnAttributes.icon>
-              </span>{' '}
+              </span>
               <span className="cds--text-truncate--end" title={displayData}>
                 {displayData}
               </span>
@@ -180,8 +180,8 @@ const TransformTableData = (rows, columnConfig, t) => {
             <>
               <span className="cds--text-truncate--end" title={displayData}>
                 {displayData}
-              </span>{' '}
-              <span>
+              </span>
+              <span className="sfg--data-table--column-icon-before">
                 <columnAttributes.icon className={columnAttributes.iconClassName}></columnAttributes.icon>
               </span>
             </>
