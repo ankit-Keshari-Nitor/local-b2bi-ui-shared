@@ -198,6 +198,10 @@ const TransformTableData = (rows, columnConfig, t) => {
         ) : (
           ''
         );
+      } else if (column.displayType === 'custom') {
+        if (column.getCustomElements) {
+          transformObj[column.value] = column.getCustomElements(row, getCellValue(row, column.value), columnConfig);
+        }
       }
     });
 
