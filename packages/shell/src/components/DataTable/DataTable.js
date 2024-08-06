@@ -124,12 +124,15 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
     });
   }, []);
 
-
   const handleRowSelection = (row, checked) => {
-    if (checked) {
-      setSelectedRows((prevSelectedRows) => [...prevSelectedRows, row.id]);
+    if (config?.rowConfig?.select === 'single') {
+      setSelectedRows((prevSelectedRows) => [row.id]);
     } else {
-      setSelectedRows((prevSelectedRows) => prevSelectedRows.filter((selectedRow) => selectedRow !== row.id));
+      if (checked) {
+        setSelectedRows((prevSelectedRows) => [...prevSelectedRows, row.id]);
+      } else {
+        setSelectedRows((prevSelectedRows) => prevSelectedRows.filter((selectedRow) => selectedRow !== row.id));
+      }
     }
   };
 
