@@ -152,6 +152,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                   }
                 : undefined
             }
+            radio={config?.rowConfig?.select === 'single' ? true : false}
           >
             {({ rows, headers, getHeaderProps, getRowProps, getSelectionProps, getBatchActionProps, onInputChange, selectedRows }) => (
               <TableContainer title={config.title ? config.title : ''} description={config.description ? config.description : ''} className={'sfg--table-container ' + className}>
@@ -339,7 +340,9 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                           <TableBody>
                             {rows.map((row, i) => (
                               <TableRow key={i} {...getRowProps({ row })} data-testid={'row-' + i}>
-                                {['multiple', 'all'].includes(config?.rowConfig?.select) && <TableSelectRow data-testid="row-selection" {...getSelectionProps({ row })} />}
+                                {['multiple', 'all', 'single'].includes(config?.rowConfig?.select) && (
+                                  <TableSelectRow data-testid="row-selection" {...getSelectionProps({ row })} />
+                                )}
                                 {row.cells.map((cell) => (
                                   <TableCell
                                     key={cell.id}
