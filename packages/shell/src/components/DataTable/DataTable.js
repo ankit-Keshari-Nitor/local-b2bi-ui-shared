@@ -78,10 +78,8 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
       setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server') {
-      //config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
       controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     } else if (config.paginationConfig.mode === 'mixed') {
-      //config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
       controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     }
   }, [pagination]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -120,10 +118,6 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
   };
 
   useEffect(() => {
-    /*if (controller) {
-      //controller.init();
-      controller.onPaginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
-    }*/
     setPagination({
       page: 1,
       pageSize: config.paginationConfig.pageSize || 20
