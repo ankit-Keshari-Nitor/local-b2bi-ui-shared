@@ -56,13 +56,13 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
   const [rowObj, setRowObj] = useState({});
   const [colObj, setColObj] = useState({});
   const [headerData, setHeaderData] = useState([]);
-
   const [searchText, setSearchText] = useState('');
   const [appliedFilter, setAppliedFilter] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: config.paginationConfig.pageSize || 20
   });
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     setRowObj(DataTableUtil.arrayToObject(data, 'id'));
@@ -71,17 +71,20 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
     } else if (config.paginationConfig.mode === 'server' || config.paginationConfig.mode === 'mixed') {
       setRows(TransformTableData(data, config.columnConfig, t));
     }
-  }, [data, loadingState]);
+    setSelectedRows([]);
+  }, [data, loadingState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
       setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server') {
-      config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
+      //config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
+      controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     } else if (config.paginationConfig.mode === 'mixed') {
-      config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
+      //config.paginationConfig.onChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
+      controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     }
-  }, [pagination]);
+  }, [pagination]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setHeaderData(
@@ -101,27 +104,19 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
       const visilbleFields = config.filterConfig.fields.filter((field) => field.isVisible || field.isVisible === undefined);
       setIsFilterEnabled(visilbleFields.length > 0);
     }
-  }, [config]);
+  }, [config]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    //setAppliedFilterDisplay(renderAppliedFilterTags());
     pagination.page = 1;
-  }, [controller?.filterState]);
+  }, [controller?.filterState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onRemoveAppliedFilter = (key) => {
-    // //delete appliedFilter[key];
-    // const { [key]: removedData, ...filterData } = appliedFilter;
-    // filterData[key] = '';
-    // //setAppliedFilter(filterData);
-    // config?.filterConfig?.onApply?.(filterData);
-    // //config?.filterConfig?.onRemove(key);
     const filters = { ...controller?.filterState, [key]: '' };
-    config?.filterConfig?.onApply?.(filters);
+    controller.applyFilter(filters);
   };
 
   const onClearApplierFilter = () => {
-    //setAppliedFilter({});
-    config?.filterConfig?.onClear();
+    controller.clearFilter();
   };
 
   useEffect(() => {
@@ -134,6 +129,27 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
       pageSize: config.paginationConfig.pageSize || 20
     });
   }, []);
+
+
+  const handleRowSelection = (row, checked) => {
+    if (checked) {
+      setSelectedRows((prevSelectedRows) => [...prevSelectedRows, row.id]);
+    } else {
+      setSelectedRows((prevSelectedRows) => prevSelectedRows.filter((selectedRow) => selectedRow !== row.id));
+    }
+  };
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(rows.map((row) => row.id));
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  useEffect(() => {
+    config?.rowConfig?.onSelectionChange?.(selectedRows);
+  }, [selectedRows]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -276,28 +292,25 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                 )}
                 <Grid fullWidth className="sfg--datatable-container-grid">
                   {showFilter && (
-                    <Column lg={4} className="sfg--datatable-container-grid-col sfg--filter-section">
+                    <Column lg={4} md={4} className="sfg--datatable-container-grid-col sfg--filter-section">
                       <DataTableFilter
                         defaultValues={config?.filterConfig?.defaultValues}
                         filterList={config?.filterConfig?.fields}
                         values={controller?.filterState}
                         onApply={(data) => {
-                          //setAppliedFilter(data);
-                          config?.filterConfig?.onApply?.(data);
+                          controller.applyFilter(data);
                           setShowFilter(false);
                         }}
                         onCancel={() => {
                           setShowFilter(false);
-                          config?.filterConfig?.onCancel();
                         }}
                         onClear={() => {
-                          //setAppliedFilter({});
-                          config?.filterConfig?.onClear();
+                          controller.applyFilter.clearFilter();
                         }}
                       ></DataTableFilter>
                     </Column>
                   )}
-                  <Column className="sfg--datatable-container-grid-col sfg--datatable-right-section" lg={showFilter ? 12 : 16}>
+                  <Column className="sfg--datatable-container-grid-col sfg--datatable-right-section" lg={showFilter ? 12 : 16} md={showFilter ? 12 : 16} sm={showFilter ? 12 : 16}>
                     <div className="sfg--datatable-applied-filters-section">
                       {appliedFilter && (
                         <AppliedFilter
@@ -316,7 +329,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                           <TableRow>
                             {config?.rowConfig?.select !== 'none' &&
                               (['all'].includes(config?.rowConfig?.select) ? (
-                                <TableSelectAll {...getSelectionProps()} data-testid="row-selection" />
+                                <TableSelectAll {...getSelectionProps()} onChange={(checked) => handleSelectAll(checked)} data-testid="row-selection" />
                               ) : (
                                 <th scope="col" data-testid="row-selection"></th>
                               ))}
@@ -341,7 +354,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                             {rows.map((row, i) => (
                               <TableRow key={i} {...getRowProps({ row })} data-testid={'row-' + i}>
                                 {['multiple', 'all', 'single'].includes(config?.rowConfig?.select) && (
-                                  <TableSelectRow data-testid="row-selection" {...getSelectionProps({ row })} />
+                                  <TableSelectRow data-testid="row-selection" {...getSelectionProps({ row })} onChange={(checked) => handleRowSelection(row, checked)} />
                                 )}
                                 {row.cells.map((cell) => (
                                   <TableCell
