@@ -1,6 +1,6 @@
 {
   "name": "@b2bi/shell",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "React Shell for B2Bi Apps",
   "main": "es/index.js",
   "module": "es/index.js",
