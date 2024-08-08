@@ -43,7 +43,14 @@ class DataService {
       if (dataLoaderConfig.handleUrl) {
         dataLoaderConfig.url = dataLoaderConfig.handleUrl(dataLoaderConfig.url, input, options);
       }
-      const cloneInput = ObjectUtil.deepClone(input);
+      let cloneInput;
+      if (input instanceof FormData) {
+        //TODO: Form data need to be clone
+        cloneInput = input;
+      } else {
+        cloneInput = ObjectUtil.deepClone(input);
+      }
+
       dataLoaderConfig.handleInput && dataLoaderConfig.handleInput(cloneInput, options);
 
       if (dataLoaderConfig.mockResponse) {
