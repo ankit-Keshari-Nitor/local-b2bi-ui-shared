@@ -97,7 +97,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
           };
         })
     );
-    setColObj(DataTableUtil.arrayToObject(config.columnConfig, 'value'));
+    setColObj(ObjectUtil.arrayToObject(config.columnConfig, 'value'));
 
     if (config?.filterConfig?.fields) {
       const visilbleFields = config.filterConfig.fields.filter((field) => field.isVisible || field.isVisible === undefined);

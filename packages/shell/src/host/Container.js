@@ -201,7 +201,7 @@ const Container = (props) => {
             render={({ isSideNavExpanded, onClickSideNavExpand }) => (
               <>
                 <Theme theme="g100">
-                  <Header aria-label={t('productName')}>
+                  <Header aria-label={t('productName')} className="b2bi--app-header">
                     <SkipToContent />
                     <HeaderMenuButton data-testid="side-nav-toggle-button" aria-label="Open menu" isCollapsible onClick={onClickSideNavExpand} isActive={isSideNavExpanded} />
                     <HeaderName as={Link} to="#" prefix={t('appPrefix')}>
