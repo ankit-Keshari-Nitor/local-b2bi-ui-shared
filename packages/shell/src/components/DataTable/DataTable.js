@@ -32,6 +32,7 @@ import { Grid, Column, Tag, Link } from '@carbon/react';
 import { SFGEmptyState } from '../EmptyState/EmptyState';
 import AppliedFilter from './AppliedFilter';
 import DataTableUtil from './DataTableUtil';
+import { ObjectUtil } from '../../core';
 import './DataTable.scss';
 
 // const rowSelect = ['none', 'single', 'multiple', 'all'];
@@ -65,7 +66,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
   const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
-    setRowObj(DataTableUtil.arrayToObject(data, 'id'));
+    setRowObj(ObjectUtil.arrayToObject(data, 'id'));
     if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
       setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
     } else if (config.paginationConfig.mode === 'server' || config.paginationConfig.mode === 'mixed') {
