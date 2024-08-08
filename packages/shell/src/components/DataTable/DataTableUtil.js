@@ -1,29 +1,6 @@
-class DataTableUtil {
-  static arrayToObject(array, objectKey) {
-    return Object.fromEntries(array.map((obj) => [obj[objectKey], obj]));
-  }
+import { ObjectUtil } from "../../core";
 
-  static deepClone(obj) {
-    if (obj === null || typeof obj !== 'object') {
-      return obj;
-    }
-
-    if (Array.isArray(obj)) {
-      const arrCopy = [];
-      for (let i = 0; i < obj.length; i++) {
-        arrCopy[i] = DataTableUtil.deepClone(obj[i]);
-      }
-      return arrCopy;
-    }
-
-    const objCopy = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        objCopy[key] = DataTableUtil.deepClone(obj[key]);
-      }
-    }
-    return objCopy;
-  }
+class DataTableUtil {  
 
   static getSelectedRowData(selectedRows, rowObj) {
     const selectedRowData = [];
@@ -34,7 +11,7 @@ class DataTableUtil {
   }
 
   static filterActions(selectedRows, actions, filterFn) {
-    const tempActions = DataTableUtil.deepClone(actions);
+    const tempActions = ObjectUtil.deepClone(actions);
     tempActions.forEach((action) => {
       action.shouldShow = true;
       action.isVisible = action.isVisible || action.isVisible === undefined;

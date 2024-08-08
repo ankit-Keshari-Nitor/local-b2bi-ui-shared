@@ -1,5 +1,6 @@
 import { RestApiService } from './RestApiService';
 import { generatePath } from 'react-router-dom';
+import { ObjectUtil } from '../utils';
 
 const generatePathWithConditionalTrailingSlash = (pathTemplate, params) => {
   const generatedPath = generatePath(pathTemplate, params);
@@ -42,7 +43,7 @@ class DataService {
       if (dataLoaderConfig.handleUrl) {
         dataLoaderConfig.url = dataLoaderConfig.handleUrl(dataLoaderConfig.url, input, options);
       }
-      const cloneInput = JSON.parse(JSON.stringify(input));
+      const cloneInput = ObjectUtil.deepClone(input);
       dataLoaderConfig.handleInput && dataLoaderConfig.handleInput(cloneInput, options);
 
       if (dataLoaderConfig.mockResponse) {
