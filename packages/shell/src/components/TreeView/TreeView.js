@@ -36,9 +36,10 @@ export default function TreeView({
   const treeRootRef = useRef(null);
   const treeWalker = useRef(treeRootRef?.current);
   const [selected, setSelected] = useState(preselected);
-  useEffect(()=> {
+  // TODO: Need to revisit this. Below code was causing max rerender limit
+  /*useEffect(()=> {
     setSelected(preselected);
-  },[preselected]);
+  },[preselected]);*/
   const [active, setActive] = useState(prespecifiedActive);
   function resetNodeTabIndices() {
     Array.prototype.forEach.call(
