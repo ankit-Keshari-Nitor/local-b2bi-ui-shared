@@ -303,7 +303,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                           setShowFilter(false);
                         }}
                         onClear={() => {
-                          controller.applyFilter.clearFilter();
+                          controller.clearFilter();
                         }}
                       ></DataTableFilter>
                     </Column>
