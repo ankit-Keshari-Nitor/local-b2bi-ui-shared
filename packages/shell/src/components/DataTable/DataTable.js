@@ -405,7 +405,12 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                                           <OverflowMenuItem
                                             data-testid={rowAction.id}
                                             key={rowAction.id}
-                                            itemText={t(rowAction.label)}
+                                            itemText={
+                                              <>
+                                                <span>{t(rowAction.label)}</span>
+                                                {rowAction.icon ? <rowAction.icon className={rowAction?.iconClassName} /> : null}
+                                              </>
+                                            }
                                             title={t(rowAction.label)}
                                             requireTitle={true}
                                             disabled={rowAction.disabled}
