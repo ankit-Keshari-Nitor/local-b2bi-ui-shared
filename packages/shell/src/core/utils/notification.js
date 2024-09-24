@@ -1,5 +1,4 @@
-import { usePage } from '../providers/PageProvider';
-import { useNotification } from '../providers';
+import { useApplication, useNotification } from '../providers';
 import { useTranslation } from 'react-i18next';
 
 const role = {
@@ -19,7 +18,7 @@ const title = {
 // kind = 'error' 'info' 'info-square' 'success' 'warning' 'warning-alt'
 
 const NotificationUtil = () => {
-  const { setNotificationMessage } = usePage();
+  const { setNotificationMessage } = useApplication();
   const { showToastMessage } = useNotification();
   const { t } = useTranslation();
 
@@ -28,16 +27,8 @@ const NotificationUtil = () => {
       id: Date.now() + type + kind + message,
       kind: kind,
       role: role[kind],
-      title: title[kind],
-      subtitle: message,
-      caption: t('shell:notification.timestamp', {
-        timestamp: new Date(Date.now()).toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        })
-      })
+      title: t(`shell:notification.type.${kind}`),
+      subtitle: message
     };
 
     if (type === 'banner') {

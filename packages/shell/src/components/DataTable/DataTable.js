@@ -9,7 +9,10 @@ import {
   TableContainer,
   Table,
   TableHead,
+  TableExpandHeader,
   TableRow,
+  TableExpandRow,
+  TableExpandedRow,
   TableHeader,
   TableBody,
   TableCell,
@@ -48,7 +51,7 @@ const columnClasses = {
   'tag-label': 'sfg--data-table--column-tag-label'
 };
 
-const SFGDataTable = React.memo(({ data, totalItems, controller, config, className, emptyState, loadingState, ...props }) => {
+const SFGDataTable = React.memo(({ data, totalItems, controller, config, className, emptyState, loadingState, expandible, ...props }) => {
   const [showFilter, setShowFilter] = useState(false);
   const [isFilterEnabled, setIsFilterEnabled] = useState(false);
   const { t } = useTranslation();
@@ -61,26 +64,27 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
   const [appliedFilter, setAppliedFilter] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: config.paginationConfig.pageSize || 20
+    pageSize: config.paginationConfig?.pageSize || 20
   });
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowDetails, setSelectedRowDetails] = useState({});
 
   useEffect(() => {
     setRowObj(ObjectUtil.arrayToObject(data, 'id'));
-    if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
+    if (config.paginationConfig?.mode === 'client' || config.paginationConfig?.mode === undefined) {
       setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
-    } else if (config.paginationConfig.mode === 'server' || config.paginationConfig.mode === 'mixed') {
+    } else if (config.paginationConfig?.mode === 'server' || config.paginationConfig?.mode === 'mixed') {
       setRows(TransformTableData(data, config.columnConfig, t));
     }
     setSelectedRows([]);
   }, [data, loadingState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (config.paginationConfig.mode === 'client' || config.paginationConfig.mode === undefined) {
+    if (config.paginationConfig?.mode === 'client' || config.paginationConfig?.mode === undefined) {
       setRows(DataTableUtil.paginate(TransformTableData(data, config.columnConfig, t), pagination));
-    } else if (config.paginationConfig.mode === 'server') {
+    } else if (config.paginationConfig?.mode === 'server') {
       controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
-    } else if (config.paginationConfig.mode === 'mixed') {
+    } else if (config.paginationConfig?.mode === 'mixed') {
       controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     }
   }, [pagination]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -121,8 +125,9 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
   useEffect(() => {
     setPagination({
       page: 1,
-      pageSize: config.paginationConfig.pageSize || 20
+      pageSize: config.paginationConfig?.pageSize || 20
     });
+    controller && controller.applyFilter(config?.filterConfig?.defaultValues || {}, false);
   }, []);
 
   const handleRowSelection = (row, checked) => {
@@ -145,9 +150,43 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
     }
   };
 
+  const onRowExpand = (selectedRow) => {
+    console.log(selectedRow);
+    if (!selectedRow.isExpanded) {
+      controller.loadRowDetails(selectedRow.id).then((data) => {
+        setSelectedRowDetails((prev) => {
+          return {
+            ...prev,
+            [selectedRow.id]: data
+          };
+        });
+      });
+    }
+  };
+
   useEffect(() => {
     config?.rowConfig?.onSelectionChange?.(selectedRows);
   }, [selectedRows]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const SelectTableRowType = ({ children, row, ...props }) => {
+    if (expandible) {
+      return (
+        <>
+          <TableExpandRow
+            {...props}
+            onClick={() => {
+              onRowExpand(row);
+            }}
+          >
+            {children}
+          </TableExpandRow>
+          <TableExpandedRow colSpan={row.cells.length + 2}>{config.expandedRowConfig.getExpandedData(row, selectedRowDetails[row.id])}</TableExpandedRow>
+        </>
+      );
+    } else {
+      return <TableRow {...props}>{children}</TableRow>;
+    }
+  };
 
   return (
     <>
@@ -289,14 +328,14 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                   </TableToolbar>
                 )}
                 <Grid fullWidth className="sfg--datatable-container-grid">
-                  {showFilter && (
-                    <Column lg={4} md={4} className="sfg--datatable-container-grid-col sfg--filter-section">
+                  {config?.filterConfig?.fields.length > 0 && (
+                    <Column lg={showFilter ? 4 : 0} md={showFilter ? 4 : 0} className="sfg--datatable-container-grid-col sfg--filter-section">
                       <DataTableFilter
                         defaultValues={config?.filterConfig?.defaultValues}
                         filterList={config?.filterConfig?.fields}
                         values={controller?.filterState}
-                        onApply={(data) => {
-                          controller.applyFilter(data);
+                        onApply={(data,reload) => {
+                          controller.applyFilter(data, reload);
                           setShowFilter(false);
                         }}
                         onCancel={() => {
@@ -325,6 +364,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                       <Table>
                         <TableHead className="sfg--data-table-head">
                           <TableRow>
+                            {expandible && <TableExpandHeader />}
                             {config?.rowConfig?.select !== 'none' &&
                               (['all'].includes(config?.rowConfig?.select) ? (
                                 <TableSelectAll {...getSelectionProps()} onChange={(checked) => handleSelectAll(checked)} data-testid="row-selection" />
@@ -350,7 +390,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                         {!(emptyState !== undefined && config.emptyStateConfig !== undefined) && (
                           <TableBody>
                             {rows.map((row, i) => (
-                              <TableRow key={i} {...getRowProps({ row })} data-testid={'row-' + i}>
+                              <SelectTableRowType key={i} {...getRowProps({ row })} data-testid={'row-' + i} row={row}>
                                 {['multiple', 'all', 'single'].includes(config?.rowConfig?.select) && (
                                   <TableSelectRow data-testid="row-selection" {...getSelectionProps({ row })} onChange={(checked) => handleRowSelection(row, checked)} />
                                 )}
@@ -405,15 +445,10 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                                           <OverflowMenuItem
                                             data-testid={rowAction.id}
                                             key={rowAction.id}
-                                            itemText={
-                                              <>
-                                                <span>{t(rowAction.label)}</span>
-                                                {rowAction.icon ? <rowAction.icon className={rowAction?.iconClassName} /> : null}
-                                              </>
-                                            }
+                                            itemText={t(rowAction.label)}
                                             title={t(rowAction.label)}
                                             requireTitle={true}
-                                            disabled={rowAction.disabled}
+                                            disabled={typeof rowAction.disabled === 'function' ? rowAction.disabled({ id: row.id }, rowObj[row.id]) : rowAction.disabled}
                                             {...rowAction.attributes}
                                             // disabled={config?.actionsConfig.shouldShowRowAction(getSelectedRowData([row], rowObj)[0])}
                                             onClick={() => rowAction.onAction({ id: row.id }, rowObj[row.id])}
@@ -423,7 +458,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                                     {/* )} */}
                                   </TableCell>
                                 )}
-                              </TableRow>
+                              </SelectTableRowType>
                             ))}
                           </TableBody>
                         )}
@@ -432,7 +467,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                         <SFGEmptyState type="datatable" {...config.emptyStateConfig[emptyState]}></SFGEmptyState>
                       )}
                     </div>
-                    {config.paginationConfig && !(emptyState !== undefined && config.emptyStateConfig !== undefined) && (
+                    {config.paginationConfig && !(emptyState !== undefined && config.emptyStateConfig !== undefined) && config.paginationConfig?.type !== 'hidden' && (
                       <Pagination
                         data-testid="table-pagination"
                         backwardText={t('common:pagination.backwardText')}

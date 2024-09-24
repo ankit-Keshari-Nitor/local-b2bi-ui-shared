@@ -9,6 +9,7 @@ const ApplicationInfoProvider = ({ children }) => {
   const [userContext, setUserContext] = useState({});
 
   const [defaultRoute, setDefaultRoute] = useState('/');
+  const [homeRoute, setHomeRoute] = useState();
 
   // State to store app details
   const [appContext, setAppContext] = useState({});
@@ -21,7 +22,7 @@ const ApplicationInfoProvider = ({ children }) => {
     if (userContextStr !== '' && userContextStr !== null) {
       userContext = JSON.parse(userContextStr);
     }
-    const orgContextStr = window.sessionStorage.getItem('orgContext');
+    const orgContextStr = window.sessionStorage.getItem('organizationContext');
     let orgContext = {};
     if (orgContextStr !== '' && orgContextStr !== null) {
       orgContext = JSON.parse(orgContextStr);
@@ -50,7 +51,9 @@ const ApplicationInfoProvider = ({ children }) => {
         setOrganizationContext,
         defaultRoute,
         setDefaultRoute,
-        setDefaults
+        setDefaults,
+        homeRoute,
+        setHomeRoute
       }}
     >
       {children}

@@ -39,7 +39,7 @@ const Toggle = ({ name, disabled, rules, infoText, id:tId, ...props }) => {
                     <CDSToggle id={id} name={name} disabled={disabled} defaultToggled={value} toggled={value} data-toggled={true} onToggle={(event) => onToggle(event)} {...props} />
                   </div>
                   {invalid && (
-                    <div class="cds--form-requirement" id={`${id}-error-msg`} dir="auto">
+                    <div className="cds--form-requirement" id={`${id}-error-msg`} dir="auto">
                       {error.message}
                     </div>
                   )}

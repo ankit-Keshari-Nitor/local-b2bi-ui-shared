@@ -4,6 +4,13 @@
   float: right;
   padding-top: 1rem;
   padding-bottom: 1rem;
+  .sfg--page-body{
+    overflow-y: auto;
+    overflow-x: hidden;
+  }  
+  .sfg--page--actions {
+    padding: 1rem 1rem 0 1rem;
+  }
 }
 
 .cds--sidePage-fs {
@@ -16,19 +23,20 @@
 }
 
 .cds--sidePage-lg {
-  width: 50%;
+  width: 60%;
   min-width: 700px;
 }
 
 .cds--sidePage-md {
-  width: 40%;
+  width: 50%;
   min-width: 600px;
 }
 .cds--sidePage-sm {
-  width: 30%;
+  width: 40%;
   min-width: 500px;
 }
 .cds--sidePage-xs {
   width: 25%;
   min-width: 400px;
 }
+

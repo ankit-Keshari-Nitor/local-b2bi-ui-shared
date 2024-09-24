@@ -1,4 +1,4 @@
-import { RestApiService } from './RestApiService';
+// import { RestApiService } from './RestApiService';
 import { generatePath } from 'react-router-dom';
 import { ObjectUtil } from '../utils';
 
@@ -56,11 +56,11 @@ class DataService {
       if (dataLoaderConfig.mockResponse) {
         // Return a promise that resolves with the mock response
         return Promise.resolve({
-          data: dataLoaderConfig.mockResponse(restReq.url, cloneInput, options),
+          data: dataLoaderConfig.mockResponse(dataLoaderConfig.url, cloneInput, options),
           status: 200,
           statusText: 'OK',
           headers: {},
-          config: restReq,
+          config: {},
           request: null
         });
       } else {

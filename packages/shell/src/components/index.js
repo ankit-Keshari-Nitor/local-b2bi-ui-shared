@@ -15,10 +15,15 @@ import { LanguageSelector } from './LanguageSelector/LanguageSelector';
 import { PageContainer } from './PageContainer/PageContainer';
 import { Page } from './page/Page';
 import { PageHeader } from './page/PageHeader';
+import { PageSection } from './page/PageSection';
 import { PageBody } from './page/PageBody';
 import { PageActions } from './page/PageActions';
 import { ToastNotificationContainer } from './ToastNotification';
+import { useWizard } from './Wizard/WizardContext';
+import DataText from './DataText/DataText';
 import { SidePageContext, SidePageContainer, SidePageProvider, useSidePage } from './SidePage';
+import { DataLabel } from './DataText/DataLabel';
+import { DataLabelWrapper } from './DataText/DataLabelWrapper';
 
 const ShellComponents = {
   Breadcrumb,
@@ -38,15 +43,21 @@ const ShellComponents = {
   Page,
   PageActions,
   PageHeader,
+  PageSection,
   PageBody,
   PageContainer,
   CDSTreeView,
   CDSTreeNode,
   ToastNotificationContainer,
+  // TODO: We need to expose it somewhere else
+  useWizard,
+  DataText,
   SidePageContext,
   SidePageContainer,
   SidePageProvider,
-  useSidePage
+  useSidePage,
+  DataLabel,
+  DataLabelWrapper
 };
 export default ShellComponents;
 
@@ -69,12 +80,18 @@ export {
   PageBody,
   PageActions,
   PageHeader,
+  PageSection,
   PageContainer,
   CDSTreeView,
   CDSTreeNode,
   ToastNotificationContainer,
+  // TODO: We need to expose it somewhere else
+  useWizard,
+  DataText,
   SidePageContext,
   SidePageContainer,
   SidePageProvider,
-  useSidePage
+  useSidePage,
+  DataLabel,
+  DataLabelWrapper
 };

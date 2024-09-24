@@ -59,7 +59,7 @@ const processRules = (options = {}, t) => {
   return options;
 };
 
-const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText, readOnly, required }, t) => {
+const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText, readOnly, disabled, required }, t) => {
   let placeholderType = '';
 
   switch (fieldType) {
@@ -82,7 +82,7 @@ const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText,
   return {
     labelText: infoText ? (
       <>
-        {newLabelText}
+        <span className="b2bi--form-field--label-text">{newLabelText}</span>
         <Tooltip align="top-left" label={infoText}>
           <Button className="sfg--tooltip" kind="ghost">
             <Information />
@@ -97,4 +97,36 @@ const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText,
   };
 };
 
-export { processRules, getFieldAttributes };
+const hasArrayChanges = (arr1 = [], arr2 = [], idKey) => {
+  if (arr1.length === 0 && arr2.length === 0) return true;
+
+  if (arr1.length !== arr2.length) return true;
+
+  return !arr1.every((item1) => arr2.some((item2) => item1[idKey] === item2[idKey]));
+};
+
+const hasFormFieldValueChanged = (fieldType, currentValue, prevValue) => {
+  let hasChanged = true;
+  switch (fieldType) {
+    case 'TextInput':
+    case 'NumberInput':
+    case 'TextArea':
+    case 'Password':
+      hasChanged = prevValue !== currentValue;
+      break;
+    case 'Combobox':
+      if (prevValue && currentValue) {
+        hasChanged = prevValue !== currentValue.id;
+      } else if (prevValue || currentValue) {
+        hasChanged = true;
+      }
+      break;
+    case 'MultSelect':
+      hasChanged = hasArrayChanges(prevValue, currentValue, 'id');
+      break;
+    default:
+  }
+  return hasChanged;
+};
+
+export { processRules, getFieldAttributes, hasFormFieldValueChanged };

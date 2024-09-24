@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, Button, Checkbox, CheckboxGroup, Tag, Link, Section, ComboBox, Form, RadioButtonGroup, RadioButton } from '@carbon/react';
+import { Button, Tag, Section } from '@carbon/react';
 import { Close } from '@carbon/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -47,24 +47,39 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
   }, [values]);*/
 
   useEffect(() => {
+    onApply(getValues(), false);
+  }, [isInitialized]);
+
+  useEffect(() => {
     const formDefaultValue = {};
     const filterListDataTemp = {};
     filterList.forEach((filter) => {
-      if (filter.type === 'input') {
-        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
-      } else if (filter.type === 'date') {
-        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
-      } else if (filter.type === 'combobox') {
-        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
-        if (!filterListData[filter.name]) {
-          filterListDataTemp[filter.name] = filter.getOptions? filter.getOptions() : filter.options.length ? filter.options : [];
-        }
-      } else if (filter.type === 'checkbox-group') {
-        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : [];
-      } else if (filter.type === 'radio-group') {
-        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
-      } else if (filter.type === 'toggle') {
-        formDefaultValue[filter.name] = values[filter.name] ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
+      const hasFilterValue = values[filter.name] !== undefined;
+      switch (filter.type) {
+        case 'input':
+        case 'date':
+        case 'date-time':
+        case 'toggle':
+        case 'radio-group':
+          formDefaultValue[filter.name] = hasFilterValue ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
+          break;
+        case 'checkbox-group':
+          formDefaultValue[filter.name] = hasFilterValue ? values[filter.name] : filter.defaultValue ? filter.defaultValue : [];
+          break;
+        case 'combobox':
+          formDefaultValue[filter.name] = hasFilterValue ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
+          if (!filterListData[filter.name]) {
+            filterListDataTemp[filter.name] = filter.getOptions ? filter.getOptions() : filter.options.length ? filter.options : [];
+          }
+          if (formDefaultValue[filter.name] && filterListDataTemp[filter.name]) {
+            const updatedValue = filterListDataTemp[filter.name].find((item) => item.id === formDefaultValue[filter.name].id);
+            if (updatedValue) {
+              formDefaultValue[filter.name] = updatedValue;
+            }
+          }
+          break;
+        default:
+          formDefaultValue[filter.name] = values[filter.name] !== undefined ? values[filter.name] : filter.defaultValue ? filter.defaultValue : '';
       }
     });
     setFilterListData({
@@ -73,7 +88,9 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
     });
     setDefaultFormValue(formDefaultValue);
     reset(formDefaultValue);
-    setIsInitialized(true);
+    if (!isInitialized) {
+      setIsInitialized(true);
+    }
   }, [filterList, values]);
 
   const filterItems = (menu) => {
@@ -179,7 +196,25 @@ const DataTableFilter = ({ values = {}, defaultValues = {}, filterList = [], onA
               }
               if (item.type === 'toggle') {
                 return (
-                  <CDS.Toggle key={item.name} labelText={t(item.label)} labelA={t(item.labelA)} labelB={t(item.labelB)} name={item.name} id={'filter.' + item.name}></CDS.Toggle>
+                  <CDS.Toggle
+                    key={item.name}
+                    labelText={t(item.label)}
+                    labelA={t(item.labelA)}
+                    labelB={t(item.labelB)}
+                    name={item.name}
+                    id={'filter.' + item.name}
+                    className="sfg--filter-field"
+                  ></CDS.Toggle>
+                );
+              }
+              if (item.type === 'select') {
+                return (
+                  <CDS.Select labelText={t(item.label)} name={item.name} defaultValue={item.defaultValue} className="sfg--filter-field">
+                    {item?.selectValue && <CDS.SelectItem text={t(item.selectTitle)} value={item.selectValue}></CDS.SelectItem>}
+                    {item.options.map((item) => (
+                      <CDS.SelectItem text={item.label} value={item.id} key={item.id}></CDS.SelectItem>
+                    ))}
+                  </CDS.Select>
                 );
               }
             })}

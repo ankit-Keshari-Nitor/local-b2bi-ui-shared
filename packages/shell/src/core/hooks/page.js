@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDatatable } from './data-table';
 import ShellProviders from '../providers';
 import { NotificationUtil } from '../utils/notification';
 import { useForm } from './form';
+import { usePage as usePageProvider } from '../../core/providers/PageProvider';
 
 const tempUseHook = (hookFn, args, args2) => {
   return hookFn(args, args2);
@@ -65,6 +66,15 @@ const useDataSource = (dsDefinition, context) => {
 
   const initDs = [];
 
+  const showDsLoadingState = (dsObj, options, state) => {
+    if (!(dsObj.skipLoader || options?.skipLoader)) {
+      context.utils.showLoadingState(state);
+      // console.log('showing loader', state);
+    } else {
+      // console.log('Skipping loader');
+    }
+  };
+
   const handleDs = function (dsName, data, options) {
     if (dsDefinition[dsName].handleOutput && dsDefinition[dsName].handleOutput.length > 0) {
       context[dsDefinition[dsName].handleOutput[0]](data);
@@ -86,9 +96,11 @@ const useDataSource = (dsDefinition, context) => {
       if (dsDefinition[dsName].loadingState !== undefined) {
         context.setUI(dsDefinition[dsName].loadingState, true);
       }
+      dsDefinition[dsName].loading = true;
 
       const pageDsPromise = new Promise((resolve, reject) => {
         try {
+          showDsLoadingState(ds[dsName].definition, options, true);
           const dsPromise = DataService.call(dsDefinition[dsName].dataloader, dsInput, dsOptions);
           dsPromise
             .then((resp) => {
@@ -99,9 +111,6 @@ const useDataSource = (dsDefinition, context) => {
               }
               if (!options?.skipHandler) {
                 handleDs(dsName, resp.data, options);
-              }
-              if (dsDefinition[dsName].loadingState !== undefined) {
-                context.setUI(dsDefinition[dsName].loadingState, false);
               }
               resolve(resp);
             })
@@ -115,10 +124,18 @@ const useDataSource = (dsDefinition, context) => {
                 context.utils.showNotificationMessage('toast', 'error', err.response.statusText);
               }
               reject(err);
+            })
+            .finally(() => {
+              if (dsDefinition[dsName].loadingState !== undefined) {
+                context.setUI(dsDefinition[dsName].loadingState, false);
+              }
+              showDsLoadingState(ds[dsName].definition, options, false);
+              dsDefinition[dsName].loading = true;
             });
         } catch (err) {
           console.log(err);
           reject(err);
+          showDsLoadingState(ds[dsName].definition, options, false);
         }
       });
 
@@ -146,6 +163,7 @@ const useDataSource = (dsDefinition, context) => {
         },
         (err) => {
           console.log(err);
+          throw err;
         }
       );
     } catch (err) {
@@ -155,21 +173,45 @@ const useDataSource = (dsDefinition, context) => {
 
   ds.makeSequentialDSCalls = function (dsArray) {
     const results = [];
+    const resultMap = {};
     let dsIndex = 0;
+    let hasError = false;
     return dsArray
       .reduce((chain, dsItem) => {
         return chain.then(() => {
-          const dsItemConfig = dsItem(dsIndex > 0 ? results[dsIndex] : {}, results);
+          const prevResponse = dsIndex > 0 ? results[dsIndex - 1] : {};
+
+          hasError = hasError || !(prevResponse.status === undefined || (prevResponse.status >= 200 && prevResponse.status < 300));
+          const dsItemConfig = dsItem(prevResponse, results);
           dsIndex++;
-          return ds[dsItemConfig.name](dsItemConfig.input, dsItemConfig.options).then((data) => {
-            results.push(data);
-          });
+          if (dsItemConfig && !hasError) {
+            // Make the actual data source call using the generated configuration
+            return ds[dsItemConfig.name](dsItemConfig.input, dsItemConfig.options)
+              .then((data) => {
+                results.push(data);
+                resultMap[dsItemConfig.name] = data;
+              })
+              .catch((err) => {
+                console.log(err);
+                hasError = true;
+                results.push(err.response);
+                resultMap[dsItemConfig.name] = err.response;
+              });
+          } else {
+            // If dsItemConfig is undefined, make a dummy call that resolves to an empty object
+            return Promise.resolve({}).then((data) => {
+              results.push(data);
+              resultMap[dsItemConfig.name] = data;
+            });
+          }
         });
       }, Promise.resolve())
-      .then(() => results)
+      .then(() => {
+        return { results, resultMap };
+      })
       .catch((error) => {
         console.error('Error:', error);
-        return []; // Return an empty array in case of error
+        return { results, resultMap };
       });
   };
   return ds;
@@ -184,12 +226,29 @@ const handleObservers = (observersDefinition, context) => {
 
 const usePage = (dependencies, pageDefinition, pageConfig) => {
   const page = {};
-  const [pageInitialized, setPageInitialized] = useState(false);
+  const isPageInitialized = useRef(false);
   const notificationUtil = NotificationUtil();
+  const { loadingState, setLoadingState, PAGE_STATE, pageStatus, setPageStatus } = usePageProvider();
+  const [loadingCount, setLoadingCount] = useState(0);
+
+  const showLoadingState = (state) => {
+    setLoadingCount((prevValue) => {
+      return state ? prevValue + 1 : prevValue - 1;
+    });
+  };
+
+  useEffect(() => {
+    if (loadingCount === 0 && loadingState) {
+      setLoadingState(false);
+    } else if (loadingCount > 0 && !loadingState) {
+      setLoadingState(true);
+    }
+  }, [loadingCount, loadingState, setLoadingState]);
 
   page.navigate = useNavigate();
   page.utils = {
-    ...notificationUtil
+    ...notificationUtil,
+    showLoadingState
   };
 
   const [model, setModel] = useModel(pageDefinition.model);
@@ -218,7 +277,8 @@ const usePage = (dependencies, pageDefinition, pageConfig) => {
       watch,
       setError,
       clearErrors,
-      control
+      control,
+      trigger
     } = tempUseHook(
       useForm,
       {
@@ -243,6 +303,7 @@ const usePage = (dependencies, pageDefinition, pageConfig) => {
       setError,
       clearErrors,
       control,
+      trigger,
       attributes: pageDefinition.form[form]
     };
   }
@@ -275,12 +336,18 @@ const usePage = (dependencies, pageDefinition, pageConfig) => {
 
   handleObservers(pageDefinition.observers, page);
   useEffect(() => {
-    if (!pageInitialized) {
+    if (!isPageInitialized.current) {
       // handleObservers(pageDefinition.observers, page);
-      page.ds._init().then(() => {
-        page.init();
-        setPageInitialized(true);
-      });
+      page.ds
+        ._init()
+        .then(() => {
+          page.init();
+        })
+        .catch((err) => {
+          console.log(err);
+          setPageStatus(PAGE_STATE.PAGE_INIT_DS_ERROR);
+        });
+      isPageInitialized.current = true;
     }
   }, []);
 

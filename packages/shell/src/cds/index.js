@@ -10,6 +10,7 @@ import TextArea from './TextArea';
 import { Select, SelectItem } from './Select';
 import Toggle from './Toggle';
 import FileUpload from './FileUpload';
+import AutoComplete from './AutoComplete';
 import DateInput from './DateInput';
 import DateTimeInput from './DateTimeInput';
 import TimeInput from './TimeInput';
@@ -30,6 +31,7 @@ const CDS = {
   SelectItem,
   Toggle,
   FileUpload,
+  AutoComplete,
   DateInput,
   DateTimeInput,
   TimeInput
@@ -52,6 +54,7 @@ export {
   SelectItem,
   Toggle,
   FileUpload,
+  AutoComplete,
   DateInput,
   DateTimeInput,
   TimeInput

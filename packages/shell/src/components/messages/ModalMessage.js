@@ -1,12 +1,12 @@
 import React from 'react';
-import { usePage } from '../../core/providers/PageProvider';
 import { Modal } from '@carbon/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useApplication } from '../../core';
 
 const ModalMessage = () => {
   const { t } = useTranslation();
-  const { modalMessage } = usePage();
+  const { modalMessage } = useApplication();
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {

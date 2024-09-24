@@ -55,39 +55,73 @@ const useDatatable = (tableConfig) => {
         .catch(() => {
           // TODO: Handle error and show empty state
           setLoadingState(false);
+          _updateEmptyState({}, { error: 'dataFetchFailed' });
         });
     } else {
-      console.error('getListData function did not return a promise');
+      console.error('getListData function did not return a promise or data');
       setLoadingState(false);
+      _updateEmptyState({}, { error: 'dataFetchFailed' });
     }
     return dsPromise;
+  };
+
+  const getListItemDetails = (selectedItem) => {
+    if (tableConfig.getListItemDetails) {
+      const dsPromise = tableConfig.getListItemDetails(selectedItem);
+      if (dsPromise && typeof dsPromise.then === 'function') {
+        setLoadingState(true);
+        dsPromise
+          .then((data) => {
+            setLoadingState(false);
+            //_updateEmptyState(data);
+          })
+          .catch(() => {
+            // TODO: Handle error and show empty state
+            setLoadingState(false);
+            //_updateEmptyState({}, { error: 'dataFetchFailed' });
+          });
+      } else {
+        console.error('getListItemDetails function did not return a promise or data');
+        setLoadingState(false);
+        //_updateEmptyState({}, { error: 'dataFetchFailed' });
+      }
+      return dsPromise;
+    } else {
+      throw new Error('getListItemDetails is not defined for Datatable controller');
+    }
   };
 
   const refresh = () => {
     return getListData();
   };
 
-  const _updateEmptyState = function (tableData) {
-    const listData = tableData.data.data;
-    if (listData.length === 0) {
-      const appliedFilterItems = removeEmptyAttributes(filter.current);
-      if (Object.keys(appliedFilterItems).length > 0 || searchText.current) {
-        setEmptyState('filterSearchNoData');
-      } else {
-        setEmptyState('initNoData');
-      }
+  const _updateEmptyState = function (tableData, errorObj) {
+    if (errorObj) {
+      setEmptyState(errorObj.error);
     } else {
-      setEmptyState(undefined);
+      const listData = tableData.data.data;
+      if (listData.length === 0) {
+        const appliedFilterItems = removeEmptyAttributes(filter.current);
+        if (Object.keys(appliedFilterItems).length > 0 || searchText.current) {
+          setEmptyState('filterSearchNoData');
+        } else {
+          setEmptyState('initNoData');
+        }
+      } else {
+        setEmptyState(undefined);
+      }
     }
   };
 
-  const applyFilter = function (filterData) {
+  const applyFilter = function (filterData, reload = true) {
     setFilter(filterData);
     setPagination({
       ...pagination.current,
       page: 0
     });
-    getListData();
+    if (reload) {
+      getListData();
+    }
   };
 
   const removeFilter = function (filterItem) {
@@ -145,6 +179,10 @@ const useDatatable = (tableConfig) => {
     }
   };
 
+  const loadRowDetails = function (selectedRow) {
+    return getListItemDetails(selectedRow);
+  };
+
   const init = function () {
     getListData();
   };
@@ -166,7 +204,8 @@ const useDatatable = (tableConfig) => {
     paginationState,
     searchText: searchText,
     searchTextState,
-    emptyState
+    emptyState,
+    loadRowDetails
   };
 };
 

@@ -9,7 +9,8 @@ const DataServiceProvider = (props) => {
   const { getEnvironmentValue } = useEnvironment();
   const [moduleDataConfig, setModuleDataConfig] = useState({});
   const [globalDataConfig, setGlobalDataConfig] = useState({});
-  const [interceptor, setInterceptor] = useState({});
+  const [interceptors, setInterceptors] = useState({});
+  const [interceptorInstance, setInterceptorInstance] = useState();
 
   const getDataLoaderConfig = (dataLoaderId) => {
     const splitKeys = dataLoaderId.split('.');
@@ -25,17 +26,32 @@ const DataServiceProvider = (props) => {
   };
 
   useEffect(() => {
-    axios.interceptors.request.use(
-      function (config) {
-        console.log('AXIOS_CONFIG', config);
-        interceptor.request && interceptor.request(config);
-        return config;
-      },
-      function (error) {
-        return Promise.reject(error);
-      }
+    if (interceptorInstance) {
+      axios.interceptors.request.eject(interceptorInstance);
+    }
+    setInterceptorInstance(
+      axios.interceptors.request.use(
+        function (config) {
+          Object.keys(interceptors).forEach((interceptor) => {
+            interceptors[interceptor].request && interceptors[interceptor].request(config);
+          });
+
+          return config;
+        },
+        function (error) {
+          return Promise.reject(error);
+        }
+      )
     );
-  }, [interceptor]);
+  }, [interceptors, setInterceptorInstance]); /* eslint-disable-line */
+
+  const setInterceptor = (interceptorName, interceptor) => {
+    setInterceptors((prevValue) => {
+      const clonedInterceptors = { ...prevValue };
+      clonedInterceptors[interceptorName] = interceptor;
+      return clonedInterceptors;
+    });
+  };
 
   const value = {
     // `setModuleDataConfig: (moduleName, config) => {

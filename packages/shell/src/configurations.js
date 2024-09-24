@@ -4,7 +4,7 @@ const headerMenuList = [
     title: 'shell:test.menu',
     to: '/shelltest',
     id: 'shelltest',
-    isVisible: window.sfgApplicationEnv === 'dev'
+    isVisible: window.location.hostname === 'localhost'
   }
 ];
 

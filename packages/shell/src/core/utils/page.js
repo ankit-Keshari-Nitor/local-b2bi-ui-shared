@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ModalUtil } from './modal';
 import { NotificationUtil } from './notification';
 import { useResource } from '../providers/ResourceProvider';
@@ -80,6 +78,15 @@ const PageUtil = () => {
     return newObj;
   };
 
+  const generateUniqueId = function (length = 16) {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let id = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      id += characters[randomIndex];
+    }
+    return Date.now().toString(16) + id;
+  };
   const showSidePage = (sidePage, data) => {
     return new Promise(function (sidePageResolve, sidePageReject) {
       setSidePageConfig({
@@ -103,6 +110,7 @@ const PageUtil = () => {
     setStoredMessage,
     getSubsetJson,
     removeEmptyAttributes,
+    generateUniqueId,
     showSidePage,
     ...modalUtil,
     ...notificationUtil

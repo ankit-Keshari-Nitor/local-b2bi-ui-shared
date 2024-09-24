@@ -9,10 +9,19 @@ import { RouterProvider } from './RouterProvider';
 import { NotificationContext, NotificationProvider, useNotification } from './NotificationProvider';
 import { ApplicationInfoProvider, useApplicationInfo } from './ApplicationInfoProvider';
 import { PageContainerProvider, usePage as usePageContainer } from './PageContainerProvider';
+import { ApplicationUtilContext, ApplicationUtilProvider, useApplicationUtil } from './ApplicationUtilProvider';
+import { ApplicationContext, ApplicationProvider, useApplication } from './ApplicationProvider';
 
 const ShellProviders = {
+  ApplicationContext,
+  ApplicationProvider,
+  useApplication,
   ApplicationInfoProvider,
   useApplicationInfo,
+
+  ApplicationUtilContext,
+  ApplicationUtilProvider,
+  useApplicationUtil,
 
   AuthProvider,
   AuthContext,
@@ -54,8 +63,14 @@ const ShellProviders = {
 export default ShellProviders;
 
 export {
+  ApplicationContext,
+  ApplicationProvider,
+  useApplication,
   ApplicationInfoProvider,
   useApplicationInfo,
+  ApplicationUtilContext,
+  ApplicationUtilProvider,
+  useApplicationUtil,
   AuthProvider,
   AuthContext,
   useAuth,

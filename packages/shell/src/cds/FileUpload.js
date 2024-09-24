@@ -141,12 +141,12 @@ const FileUpload = ({ name, labelText, accept, maxFileSize, disabled, onChange, 
               onChange={onAddFiles}
               disabled={disabled}
             />
-            {error && <div class="cds--form-requirement">{error?.message}</div>}
+            {error && <div className="cds--form-requirement">{error?.message}</div>}
           </FormItem>
         ) : (
           <div className="cds--file-container cds--file-container--drop" name={name}>
-            <div class="cds--text-input__label-wrapper">
-              <label class="cds--label" dir="auto">
+            <div className="cds--text-input__label-wrapper">
+              <label className="cds--label" dir="auto">
                 {labelText}
               </label>
             </div>

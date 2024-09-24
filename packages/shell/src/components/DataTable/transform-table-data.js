@@ -97,7 +97,10 @@ const TransformTableData = (rows, columnConfig, t) => {
             {...columnAttributes}
             data-testid={rowIndex + '-' + column.id}
           >
-            <span className="cds--text-truncate--end" title={column.data?.linkText ? t(column.data.linkText) : getCellValue(row, column.value)}>
+            <span
+              className={column.showInTruncatedForm || column?.showInTruncatedForm === undefined ? 'cds--text-truncate--end' : ''}
+              title={column.data?.linkText ? t(column.data.linkText) : getCellValue(row, column.value)}
+            >
               {column.data?.linkText ? t(column.data.linkText) : getCellValue(row, column.value)}
             </span>
           </Link>
@@ -119,7 +122,7 @@ const TransformTableData = (rows, columnConfig, t) => {
         }
         transformObj[column.value] = (
           <>
-            <div className="cds--text-truncate--end" title={transformvalue}>
+            <div className={column.showInTruncatedForm || column?.showInTruncatedForm === undefined ? 'cds--text-truncate--end' : ''} title={transformvalue}>
               {transformvalue}{' '}
             </div>
           </>
@@ -151,7 +154,7 @@ const TransformTableData = (rows, columnConfig, t) => {
         if (column.displayType === 'tag-label') {
           transformObj[column.value] = (
             <Tag size="sm" type={columnAttributes.type}>
-              <span className="cds--text-truncate--end" title={displayData}>
+              <span className={column.showInTruncatedForm || column?.showInTruncatedForm === undefined ? 'cds--text-truncate--end' : ''} title={displayData}>
                 {displayData}
               </span>
             </Tag>
@@ -159,7 +162,7 @@ const TransformTableData = (rows, columnConfig, t) => {
         } else if (column.displayType === 'label') {
           transformObj[column.value] = (
             <>
-              <div className="cds--text-truncate--end" title={displayData}>
+              <div className={column.showInTruncatedForm || column?.showInTruncatedForm === undefined ? 'cds--text-truncate--end' : ''} title={displayData}>
                 {displayData}
               </div>
             </>
@@ -170,7 +173,7 @@ const TransformTableData = (rows, columnConfig, t) => {
               <span className="sfg--data-table--column-icon-before">
                 <columnAttributes.icon className={columnAttributes.iconClassName}></columnAttributes.icon>
               </span>
-              <span className="cds--text-truncate--end" title={displayData}>
+              <span className={column.showInTruncatedForm || column?.showInTruncatedForm === undefined ? 'cds--text-truncate--end' : ''} title={displayData}>
                 {displayData}
               </span>
             </>
@@ -178,7 +181,7 @@ const TransformTableData = (rows, columnConfig, t) => {
         } else if (column.displayType === 'label-icon') {
           transformObj[column.value] = (
             <>
-              <span className="cds--text-truncate--end" title={displayData}>
+              <span className={column.showInTruncatedForm || column?.showInTruncatedForm === undefined ? 'cds--text-truncate--end' : ''} title={displayData}>
                 {displayData}
               </span>
               <span className="sfg--data-table--column-icon-before">

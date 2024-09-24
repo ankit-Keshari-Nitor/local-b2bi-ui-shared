@@ -9,6 +9,7 @@ const ConfigurationProvider = (props) => {
   const [sideNav, setSideNav] = useState(props.sideNavConfig || []);
   const [headerMenuList, setHeaderMenuList] = useState(props.headerMenuList || []);
   const [switcherItemList, setSwitcherItemList] = useState(props.switcherItemList || []);
+  const [customHeaderPanelList, setCustomHeaderPanelList] = useState();
 
   //i18n.changeLanguage(locale);
   const value = {
@@ -23,7 +24,9 @@ const ConfigurationProvider = (props) => {
     headerMenuList,
     setHeaderMenuList,
     switcherItemList,
-    setSwitcherItemList
+    setSwitcherItemList,
+    customHeaderPanelList,
+    setCustomHeaderPanelList
   };
   return <ConfigurationContext.Provider value={value}>{props.children}</ConfigurationContext.Provider>;
 };

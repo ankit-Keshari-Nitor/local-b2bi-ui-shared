@@ -3,6 +3,9 @@ class ObjectUtil {
     if (obj === null || typeof obj !== 'object') {
       return obj;
     }
+    if( obj !== null && obj !== undefined && obj instanceof FormData) {
+      return obj;
+    }
 
     if (Array.isArray(obj)) {
       const arrCopy = [];

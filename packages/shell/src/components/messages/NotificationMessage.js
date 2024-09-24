@@ -1,10 +1,10 @@
 import React from 'react';
-import { usePage as usePageNotificaion } from '../../core/providers/PageProvider';
 import { InlineNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
+import { useApplication } from '../../core';
 
 const NotificationMessage = () => {
-  const { notificationMessage, setNotificationMessage } = usePageNotificaion();
+  const { notificationMessage, setNotificationMessage } = useApplication();
   const { t } = useTranslation();
   return (
     <>

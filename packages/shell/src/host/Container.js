@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { UserAvatar, Enterprise } from '@carbon/icons-react';
+import { UserAvatar, NotificationNew } from '@carbon/icons-react';
 import {
-  Button,
   Content,
   Header,
   HeaderContainer,
@@ -26,13 +25,14 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Breadcrumb } from '../components/Breadcrumb/Breadcrumb';
+import { BreadcrumbProvider } from '../components/Breadcrumb/BreadcrumbProvider';
 import { ModalMessage } from '../components/messages/ModalMessage';
 import { ModalPageContainer } from '../components/modal/ModalPage';
 import { useAuth } from '../core/providers/AuthProvider';
 import { useConfiguration } from '../core/providers/ConfigurationProvider';
 import { useResource } from '../core/providers/ResourceProvider';
 import { PageProvider } from '../core/providers/PageProvider';
-import { ToastNotificationContainer, useSidePage } from '../components';
+import { ToastNotificationContainer } from '../components';
 import { useApplicationInfo } from '../core/providers/ApplicationInfoProvider';
 import { PageContainerProvider } from '../core/providers/PageContainerProvider';
 import { SidePageContainer } from '../components/SidePage/SidePageContainer';
@@ -41,10 +41,12 @@ import './Container.scss';
 
 const Container = (props) => {
   const { t } = useTranslation();
-  const { sideNav, headerMenuList, switcherItemList } = useConfiguration();
+  const { sideNav, headerMenuList, switcherItemList, customHeaderPanelList } = useConfiguration();
   const { user, logout } = useAuth();
   const { defaultRoute, organizationContext, setDefaults } = useApplicationInfo();
   const [showRightPanel, setShowRightPanel] = useState(false);
+  const [showCustomRightPanel, setShowCustomRightPanel] = useState(false);
+  const [customHeaderPanel, setCustomHeaderPanel] = useState();
   const { hasAccess } = useResource();
   const [currentPage, setCurrentPage] = useState();
   const [activeRoute, setActiveRoute] = useState();
@@ -53,9 +55,14 @@ const Container = (props) => {
 
   const toggleRightPanel = () => {
     setShowRightPanel(!showRightPanel);
+    setShowCustomRightPanel(false);
   };
 
-  //console.log(JSON.stringify(sideNav), location.pathname);
+  const toggleCustomRightPanel = (customHeaderPanel) => {
+    setShowRightPanel(false);
+    setShowCustomRightPanel(!showCustomRightPanel);
+    setCustomHeaderPanel(customHeaderPanel);
+  };
 
   const getActiveRoute = (routes, path) => {
     let maxMatchLength = 0;
@@ -101,6 +108,7 @@ const Container = (props) => {
                 renderIcon={navConfig.icon}
                 as={Link}
                 to={navConfig.to}
+                title={t(navConfig.title)}
               >
                 {t(navConfig.label)}
               </SideNavLink>
@@ -196,98 +204,111 @@ const Container = (props) => {
   return (
     <>
       {organizationContext && (
-        <div className="container">
-          <HeaderContainer
-            render={({ isSideNavExpanded, onClickSideNavExpand }) => (
-              <>
-                <Theme theme="g100">
-                  <Header aria-label={t('productName')} className="b2bi--app-header">
-                    <SkipToContent />
-                    <HeaderMenuButton data-testid="side-nav-toggle-button" aria-label="Open menu" isCollapsible onClick={onClickSideNavExpand} isActive={isSideNavExpanded} />
-                    <HeaderName as={Link} to="#" prefix={t('appPrefix')}>
-                      {t('appName')}
-                    </HeaderName>
-                    <HeaderNavigation aria-label={t('productName')}>{renderHeaderMenu(headerMenuList, isSideNavExpanded, onClickSideNavExpand)}</HeaderNavigation>
-                    <HeaderGlobalBar>
-                      <HeaderGlobalAction aria-label="Organization Context" className="user-profile">
-                        <Enterprise size={24} />
-                        &nbsp;
-                        <div className="user-details">
-                          <div>{organizationContext?.organizationName}</div>
-                        </div>
-                        &nbsp;
-                      </HeaderGlobalAction>
-                      <HeaderGlobalAction aria-label={t('shell:userProfile')} className="user-profile" onClick={toggleRightPanel}>
-                        <UserAvatar size={24} />
-                        <div className="user-details">
-                          <div>{user.userName || user.username}</div>
-                          <div>{user.lastLoggedIn} (UTC 5:30)</div>
-                        </div>
-                      </HeaderGlobalAction>
-                    </HeaderGlobalBar>
-                    <Theme className="h-inherit" theme="white">
-                      <SideNav aria-label="Side navigation" isPersistent={false} expanded={isSideNavExpanded}>
-                        <SideNavItems>{renderSideNav(sideNav)}</SideNavItems>
-                      </SideNav>
-                    </Theme>
-                    <HeaderPanel aria-label="Header Panel" expanded={showRightPanel}>
-                      {/*<Button onClick={() => logout()}>Sign out</Button>*/}
-                      <Switcher aria-label="Switcher Container" expanded={showRightPanel}>
-                        {switcherItemList
-                          .filter((switcherItem) => hasAccess(switcherItem.resourceKey))
-                          .filter((switcherItem) => switcherItem.isVisible || switcherItem.isVisible === undefined)
-                          .map((switcherItem) =>
-                            switcherItem.divider ? (
-                              <SwitcherDivider key={switcherItem.id} />
-                            ) : (
-                              <SwitcherItem
-                                key={switcherItem.id}
-                                aria-label={switcherItem.ariaLabel}
-                                onClick={() => {
-                                  if (switcherItem.navigateTo) {
-                                    navigate(switcherItem.navigateTo);
-                                  } else {
-                                    switcherItem.onAction && switcherItem.onAction();
-                                  }
-                                  setShowRightPanel(false);
-                                }}
-                              >
-                                {switcherItem.content}
-                              </SwitcherItem>
-                            )
-                          )}
-                      </Switcher>
-                    </HeaderPanel>
-                  </Header>
-                </Theme>
-                <Content className={isSideNavExpanded ? 'main-content sidenav-expanded' : 'main-content'}>
-                  <Theme className="h-inherit" theme="g10">
-                    <PageProvider>
-                      <section className="h-inherit main-section">
-                        <section className="shell-breadscrumb-container">
-                          <Breadcrumb />
-                        </section>
-                        <section className="shell-page-content">
-                          <PageContainerProvider>
-                            <Outlet />
-                          </PageContainerProvider>
-                          <ModalMessage></ModalMessage>
-                          <ModalPageContainer></ModalPageContainer>
-                        </section>
-                      </section>
-                      <section className="h-inherit side-section">
-                        <SidePageContainer>Side Page content</SidePageContainer>
-                      </section>
-                      <section class="shell-toast-container">
-                        <ToastNotificationContainer></ToastNotificationContainer>
-                      </section>
-                    </PageProvider>
+        <BreadcrumbProvider>
+          <div className="container">
+            <HeaderContainer
+              render={({ isSideNavExpanded, onClickSideNavExpand }) => (
+                <>
+                  <Theme theme="g100">
+                    <Header aria-label={t('productName')} className="b2bi--app-header">
+                      <SkipToContent />
+                      <HeaderMenuButton data-testid="side-nav-toggle-button" aria-label="Open menu" isCollapsible onClick={onClickSideNavExpand} isActive={isSideNavExpanded} />
+                      <HeaderName as={Link} to="#" prefix={t('appPrefix')}>
+                        {t('appName')}
+                      </HeaderName>
+                      <HeaderNavigation aria-label={t('productName')}>{renderHeaderMenu(headerMenuList, isSideNavExpanded, onClickSideNavExpand)}</HeaderNavigation>
+                      <HeaderGlobalBar>
+                        <HeaderGlobalAction aria-label="Notifications" className="notifications">
+                          <NotificationNew size={24} />
+                        </HeaderGlobalAction>
+                        {customHeaderPanelList &&
+                          customHeaderPanelList.map((customHeaderPanel) => (
+                            <HeaderGlobalAction name={customHeaderPanel.id} aria-label={customHeaderPanel.title} onClick={() => toggleCustomRightPanel(customHeaderPanel)}>
+                              <customHeaderPanel.icon size={24} />
+                            </HeaderGlobalAction>
+                          ))}
+                        <HeaderGlobalAction aria-label={t('shell:userProfile')} onClick={toggleRightPanel}>
+                          <UserAvatar size={24} />
+                        </HeaderGlobalAction>
+                      </HeaderGlobalBar>
+                      <Theme className="h-inherit" theme="white">
+                        <SideNav aria-label="Side navigation" isPersistent={false} expanded={isSideNavExpanded}>
+                          <SideNavItems>{renderSideNav(sideNav)}</SideNavItems>
+                        </SideNav>
+                      </Theme>
+                      <HeaderPanel aria-label="Header Panel" expanded={showRightPanel} className="cds--header-panel--auto-height">
+                        {/*<Button onClick={() => logout()}>Sign out</Button>*/}
+                        <Switcher aria-label="Switcher Container" expanded={showRightPanel}>
+                          {switcherItemList
+                            .filter((switcherItem) => hasAccess(switcherItem.resourceKey))
+                            .filter((switcherItem) => switcherItem.isVisible || switcherItem.isVisible === undefined)
+                            .map((switcherItem) =>
+                              switcherItem.divider ? (
+                                <SwitcherDivider key={switcherItem.id} />
+                              ) : (
+                                <SwitcherItem
+                                  key={switcherItem.id}
+                                  aria-label={switcherItem.ariaLabel}
+                                  onClick={() => {
+                                    if (switcherItem.navigateTo) {
+                                      navigate(switcherItem.navigateTo);
+                                    } else {
+                                      switcherItem.onAction && switcherItem.onAction();
+                                    }
+                                    setShowRightPanel(false);
+                                  }}
+                                >
+                                  {switcherItem.content !== undefined ? (
+                                    switcherItem.content
+                                  ) : (
+                                    <>
+                                      {switcherItem.icon && <div className="cds--switcher__icon cds--switcher__icon--small">{<switcherItem.icon></switcherItem.icon>}</div>}
+                                      <span className="cds--switcher__link-text">{switcherItem.label}</span>
+                                    </>
+                                  )}
+                                </SwitcherItem>
+                              )
+                            )}
+                        </Switcher>
+                      </HeaderPanel>
+                      <HeaderPanel
+                        aria-label={customHeaderPanel ? customHeaderPanel.title : ''}
+                        expanded={showCustomRightPanel}
+                        className={customHeaderPanel && customHeaderPanel.panelClassName}
+                      >
+                        {customHeaderPanel ? <customHeaderPanel.content onClose={() => toggleCustomRightPanel(customHeaderPanel)} /> : <></>}
+                      </HeaderPanel>
+                    </Header>
                   </Theme>
-                </Content>
-              </>
-            )}
-          />
-        </div>
+                  <Content className={isSideNavExpanded ? 'main-content sidenav-expanded' : 'main-content'}>
+                    <Theme className="h-inherit" theme="g10">
+                      <PageProvider>
+                        <section className="h-inherit main-section">
+                          <section className="shell-breadscrumb-container">
+                            <Breadcrumb />
+                          </section>
+                          <section className="shell-page-content">
+                            <PageContainerProvider>
+                              <Outlet />
+                            </PageContainerProvider>
+                            <ModalMessage></ModalMessage>
+                            <ModalPageContainer></ModalPageContainer>
+                          </section>
+                        </section>
+                        <section className="h-inherit side-section">
+                          <SidePageContainer>Side Page content</SidePageContainer>
+                        </section>
+                        <section className="shell-toast-container">
+                          <ToastNotificationContainer></ToastNotificationContainer>
+                        </section>
+                      </PageProvider>
+                    </Theme>
+                  </Content>
+                </>
+              )}
+            />
+          </div>
+        </BreadcrumbProvider>
       )}
     </>
   );

@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 const WizardContext = React.createContext();
 
-const WizardProvider = ({ children, onInit, onFinish, steps }) => {
+const WizardProvider = ({ children, onInit, onFinish, steps, onSave, onCancel, data }) => {
   const [wizardPage, setWizardPage] = useState();
-  const [wizardData, setWizardData] = useState();
+  const [wizardData, setWizardData] = useState(data || {});
   const [wizardAction, setWizardAction] = useState();
   const [wizardConfig, setWizardConfig] = useState();
+  const [wizardStepErrors, setWizardStepErrors] = useState({});
 
-  //const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [prevBtnState, setPrevBtnState] = useState();
   const [nextBtnState, setNextBtnState] = useState();
@@ -16,15 +16,16 @@ const WizardProvider = ({ children, onInit, onFinish, steps }) => {
   const stepHandler = React.useRef(() => {});
   const initHandler = React.useRef(onInit);
   const finishHandler = React.useRef(onFinish);
-  // console.log(onFinish);
 
   useEffect(() => {
     const stepsArray = [];
-    steps.forEach((step) => {
+    steps?.forEach((step) => {
       stepsArray.push({
         id: step.props.id,
         label: step.props.label,
         path: step.props.path,
+        secondaryLabel: step.props.secondaryLabel,
+        invalid: step.props.invalid,
         element: step.props.element
       });
     });
@@ -35,8 +36,11 @@ const WizardProvider = ({ children, onInit, onFinish, steps }) => {
     };
     handleInit();
     setWizardSteps(stepsArray);
-    setCurrentIndex(0);
   }, [steps]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, []);
 
   useEffect(() => {
     let prev,
@@ -62,23 +66,31 @@ const WizardProvider = ({ children, onInit, onFinish, steps }) => {
     //navigate(wizardSteps[currentIndex - 1].path);
   };
   const onNext = async () => {
+    let shouldGoToNext = false;
     if (stepHandler.current) {
       try {
-        await stepHandler.current();
+        shouldGoToNext = await stepHandler.current();
       } catch (err) {
         // throw err;
         // TODO: Show some notification about the error
       }
     }
-    if (currentIndex < wizardSteps.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else if (finishHandler.current) {
-      try {
-        await finishHandler.current();
-      } catch (err) {
-        // throw err;
-        // TODO: Show some notification about the error
+    if (shouldGoToNext) {
+      if (currentIndex < wizardSteps.length - 1) {
+        wizardSteps[currentIndex]['invalid'] = false;
+        setCurrentIndex(currentIndex + 1);
+      } else if (finishHandler.current) {
+        try {
+          await finishHandler.current();
+        } catch (err) {
+          // throw err;
+          // TODO: Show some notification about the error
+          wizardSteps[currentIndex]['showNotificationMessage'] = err.message;
+        }
       }
+    } else {
+      // TODO: Whenever the form has the errors then we need to throw the invalid condition
+      wizardSteps[currentIndex]['invalid'] = true;
     }
 
     //navigate(wizardSteps[currentIndex + 1].path);
@@ -86,6 +98,14 @@ const WizardProvider = ({ children, onInit, onFinish, steps }) => {
 
   const handleStep = (handler) => {
     stepHandler.current = handler;
+  };
+
+  const setWizardPageData = (wizardPageData) => {
+    setWizardData({ ...wizardData, [wizardSteps[currentIndex].id]: wizardPageData });
+  };
+
+  const getWizardPageData = (wizardPageId) => {
+    return wizardData[wizardPageId];
   };
 
   return (
@@ -110,10 +130,17 @@ const WizardProvider = ({ children, onInit, onFinish, steps }) => {
         nextBtnState,
         onPrevious,
         onNext,
-        handleStep
+        handleStep,
+        stepHandler,
+        wizardStepErrors,
+        setWizardStepErrors,
+        onSave,
+        onCancel,
+        setWizardPageData,
+        getWizardPageData
       }}
     >
-      {children(currentIndex, wizardSteps, prevBtnState, nextBtnState, onPrevious, onNext)}
+      {children(currentIndex, wizardSteps, prevBtnState, nextBtnState, onPrevious, onNext, wizardData)}
     </WizardContext.Provider>
   );
 };

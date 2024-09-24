@@ -1,10 +1,10 @@
 
+import { useApplication } from '../providers';
 import { useModal } from '../providers/ModalProvider';
-import { usePage } from '../providers/PageProvider';
 
 const ModalUtil = () => {
   const { setModalConfig } = useModal();
-  const { setModalMessage } = usePage();
+  const { setModalMessage } = useApplication();
 
   const showPageModal = (modalPage, data) => {
     return new Promise(function (modalResolve, modalReject) {
