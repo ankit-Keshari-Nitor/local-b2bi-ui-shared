@@ -29,6 +29,8 @@ const MultiSelect = ({ name, rules, disabled, items, itemToString, variant = 'fi
             onChange(event);
           };
           const id = control?._options.name ? control._options.name + '.' + name : name;
+          const requiredLabelSuffix = control ? control._options.requiredLabelSuffix : false;
+
           const selectedItems = items.filter((item) =>
             value?.find((selectedItem) => {
               if (typeof selectedItem === 'object') {
@@ -54,7 +56,7 @@ const MultiSelect = ({ name, rules, disabled, items, itemToString, variant = 'fi
                   itemToString={itemToString}
                   invalid={invalid}
                   invalidText={error?.message}
-                  {...getFieldAttributes({fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+                  {...getFieldAttributes({ fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly, requiredLabelSuffix }, t)}
                   {...props}
                 />
               ) : (
@@ -70,7 +72,7 @@ const MultiSelect = ({ name, rules, disabled, items, itemToString, variant = 'fi
                   invalid={invalid}
                   invalidText={error?.message}
                   selectedItems={selectedItems}
-                  {...getFieldAttributes({fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+                  {...getFieldAttributes({ fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly, requiredLabelSuffix }, t)}
                   {...props}
                 />
               )}

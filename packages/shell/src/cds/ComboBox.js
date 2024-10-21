@@ -29,6 +29,8 @@ const ComboBox = ({ name, rules, disabled, items, itemToString, getValue, itemVa
             onChange(event);
           };
           const id = control?._options.name ? control._options.name + '.' + name : name;
+          const requiredLabelSuffix = control ? control._options.requiredLabelSuffix : false;
+
           const selectedItem =
             items &&
             value &&
@@ -56,7 +58,7 @@ const ComboBox = ({ name, rules, disabled, items, itemToString, getValue, itemVa
               itemToString={itemToString}
               invalid={invalid}
               invalidText={error?.message}
-              {...getFieldAttributes({ fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+              {...getFieldAttributes({ fieldType: 'MultiSelect', name, labelText, placeholder, infoText, required: processedRules.required, readOnly, requiredLabelSuffix }, t)}
               // shouldFilterItem={filterItems}
               {...props}
             />

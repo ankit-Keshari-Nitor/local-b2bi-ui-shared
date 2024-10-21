@@ -59,7 +59,7 @@ const processRules = (options = {}, t) => {
   return options;
 };
 
-const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText, readOnly, disabled, required }, t) => {
+const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText, readOnly, disabled, required, requiredLabelSuffix }, t) => {
   let placeholderType = '';
 
   switch (fieldType) {
@@ -77,7 +77,12 @@ const getFieldAttributes = ({ fieldType, name, labelText, placeholder, infoText,
       placeholderType = 'enter';
   }
 
-  const newLabelText = required || readOnly ? labelText : t('shell:form.labels.optional', { value: labelText });
+  let newLabelText;
+  if (requiredLabelSuffix) {
+    newLabelText = required && !readOnly ? t('shell:form.labels.required', { value: labelText }) : labelText
+  } else {
+    newLabelText = required || readOnly ? labelText : t('shell:form.labels.optional', { value: labelText });
+  }
   const newPlaceholder = placeholder || (readOnly ? '' : t(`shell:form.placeholder.${placeholderType}`, { label: labelText }));
   return {
     labelText: infoText ? (

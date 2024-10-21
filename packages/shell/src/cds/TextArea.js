@@ -18,6 +18,8 @@ const TextArea = ({ name, rules, disabled, labelText, placeholder, infoText, rea
         disabled={disabled}
         render={({ field: { onChange, onBlur, value, disabled, name, ref }, fieldState: { invalid, isTouched, isDirty, error }, formState }) => {
           const id = control?._options.name ? control._options.name + '.' + name : name;
+          const requiredLabelSuffix = control ? control._options.requiredLabelSuffix : false;
+
           return (
             <CDSTextArea
               id={id}
@@ -29,7 +31,7 @@ const TextArea = ({ name, rules, disabled, labelText, placeholder, infoText, rea
               value={value}
               invalid={invalid}
               invalidText={error?.message}
-              {...getFieldAttributes({fieldType: 'TextArea', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+              {...getFieldAttributes({ fieldType: 'TextArea', name, labelText, placeholder, infoText, required: processedRules.required, readOnly, requiredLabelSuffix }, t)}
               {...props}
             />
           );

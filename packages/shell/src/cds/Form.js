@@ -4,7 +4,7 @@ import { FormProvider } from 'react-hook-form';
 import { usePageContainer } from '../core';
 import PropTypes from 'prop-types';
 
-const Form = ({ name, context, children, ...props }) => {
+const Form = ({ name, context, children, requiredLabelSuffix = false, ...props }) => {
   const { pageController } = usePageContainer();
   let formController;
   if (!context) {
@@ -12,6 +12,8 @@ const Form = ({ name, context, children, ...props }) => {
   } else {
     formController = context;
   }
+
+  formController.control._options.requiredLabelSuffix = requiredLabelSuffix
 
   return (
     <>

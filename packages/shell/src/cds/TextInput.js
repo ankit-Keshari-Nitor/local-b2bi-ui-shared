@@ -18,6 +18,7 @@ const TextInput = ({ name, rules, disabled, labelText, placeholder, infoText, re
         disabled={disabled}
         render={({ field: { onChange, onBlur, value, disabled, name, ref }, fieldState: { invalid, isTouched, isDirty, error }, formState }) => {
           const id = control?._options.name ? control._options.name + '.' + name : name;
+          const requiredLabelSuffix = control ? control._options.requiredLabelSuffix : false;
           return (
             <CDSTextInput
               id={id}
@@ -29,7 +30,7 @@ const TextInput = ({ name, rules, disabled, labelText, placeholder, infoText, re
               value={value}
               invalid={invalid}
               invalidText={error?.message}
-              {...getFieldAttributes({ fieldType: 'TextInput', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+              {...getFieldAttributes({ fieldType: 'TextInput', name, labelText, placeholder, infoText, required: processedRules.required, readOnly ,requiredLabelSuffix}, t)}
               {...props}
             />
           );

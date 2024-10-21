@@ -45,6 +45,7 @@ const PasswordInput = ({ name, rules, disabled, labelText, placeholder, infoText
         disabled={disabled}
         render={({ field: { onChange, onBlur, value, disabled, name, ref }, fieldState: { invalid, isTouched, isDirty, error }, formState }) => {
           const id = control?._options.name ? control._options.name + '.' + name : name;
+          const requiredLabelSuffix = control ? control._options.requiredLabelSuffix : false;
 
           return (
             <CustomPasswordInput
@@ -57,7 +58,7 @@ const PasswordInput = ({ name, rules, disabled, labelText, placeholder, infoText
               value={value}
               invalid={invalid}
               invalidText={error?.message}
-              {...getFieldAttributes({fieldType: 'PasswordInput', name, labelText, placeholder, infoText, required: processedRules.required, readOnly }, t)}
+              {...getFieldAttributes({fieldType: 'PasswordInput', name, labelText, placeholder, infoText, required: processedRules.required, readOnly,requiredLabelSuffix }, t)}
               {...props}
             />
           );

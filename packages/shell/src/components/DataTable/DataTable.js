@@ -51,7 +51,7 @@ const columnClasses = {
   'tag-label': 'sfg--data-table--column-tag-label'
 };
 
-const SFGDataTable = React.memo(({ data, totalItems, controller, config, className, emptyState, loadingState, expandible, ...props }) => {
+const SFGDataTable = React.memo(({ data, totalItems, controller, config, className, emptyState, loadingState, expandible, selectedRowId, ...props }) => {
   const [showFilter, setShowFilter] = useState(false);
   const [isFilterEnabled, setIsFilterEnabled] = useState(false);
   const { t } = useTranslation();
@@ -77,6 +77,16 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
       setRows(TransformTableData(data, config.columnConfig, t));
     }
     setSelectedRows([]);
+
+    const rowIdToUpdate = selectedRowId;
+    setRows(prevRows =>
+      prevRows.map(row => {
+        if (row.id === rowIdToUpdate) {
+          return { ...row, isSelected: true }; // Update isSelected to true
+        }
+        return row; // Return the row unchanged
+      })
+    );
   }, [data, loadingState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -87,6 +97,17 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
     } else if (config.paginationConfig?.mode === 'mixed') {
       controller.paginationChange({ page: pagination.page - 1, pageSize: pagination.pageSize });
     }
+
+    const rowIdToUpdate = selectedRowId;
+    setRows(prevRows =>
+      prevRows.map(row => {
+        if (row.id === rowIdToUpdate) {
+          return { ...row, isSelected: true }; // Update isSelected to true
+        }
+        return row; // Return the row unchanged
+      })
+    );
+
   }, [pagination]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -201,8 +222,8 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
             filterRows={
               config.filterConfig?.onFilterRows
                 ? (data) => {
-                    config.filterConfig.onFilterRows(data);
-                  }
+                  config.filterConfig.onFilterRows(data);
+                }
                 : undefined
             }
             radio={config?.rowConfig?.select === 'single' ? true : false}
@@ -334,7 +355,7 @@ const SFGDataTable = React.memo(({ data, totalItems, controller, config, classNa
                         defaultValues={config?.filterConfig?.defaultValues}
                         filterList={config?.filterConfig?.fields}
                         values={controller?.filterState}
-                        onApply={(data,reload) => {
+                        onApply={(data, reload) => {
                           controller.applyFilter(data, reload);
                           setShowFilter(false);
                         }}
